@@ -23,6 +23,7 @@ title_locator = 'vi-lkhdr-itmTitl'
 condition_locator = 'ux-textspans--ITALIC'
 description_locator = 'desc_ifr'
 img_locator = 'ux-image-filmstrip-carousel-item'
+active_image_locator = "ux-image-carousel-item active image"
 
 
 #######################################################################################
@@ -101,6 +102,13 @@ class Grabber:
         count = 0
         links = []
         img_links = driver.find_elements(By.CLASS_NAME, img_locator)
+
+        #need to grab active image seperately
+        active = driver.find_element(By.CSS_SELECTOR, "div.ux-image-carousel-item");
+        img = active.find_element(By.TAG_NAME, 'img')
+        link = img.get_attribute('src')
+        links.append(link)
+
         for link in img_links:
             element = link.find_elements(By.TAG_NAME, 'img')
             src = element[count].get_attribute('src')
@@ -109,8 +117,6 @@ class Grabber:
         return links
 
     # grab price
-
-    # grab image links
 
     # <<<MAIN LOOP>>>
 
