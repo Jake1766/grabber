@@ -33,7 +33,7 @@ postage_locator = 'ux-labels-values--shipping'
 
 #######################################################################################
 
-# class declaration
+# <<<CLASSES>>>
 
 class Book:
     def __init__(self, page_id, title, condition, description, img_links, price, postage):
@@ -103,7 +103,7 @@ class Grabber:
     def grab_description(self):
         element = self.grab_by_id(description_locator)
         src = self.grab_src(element)
-        print(f'description found at:\n{src}')
+        print(f'\ndescription found at:\n{src}')
         return src
 
     def grab_imgs(self):
@@ -123,6 +123,7 @@ class Grabber:
             print(src)
             links.append(src)
         links = self.img_process(links)
+        print(f'\nimage links: {links}')
         return links
 
     # grab price
@@ -130,14 +131,15 @@ class Grabber:
         element = driver.find_element(By.CLASS_NAME, price_locator)
         final = element.find_element(By.CLASS_NAME, 'ux-textspans')
         price = final.get_attribute('innerHTML')
-        return price
+        price  = price[1:]
+        print(f'\nprice is:\n{price}')
+        return str(price)
 
     def grab_postage(self):
         element = driver.find_element(By.CLASS_NAME, postage_locator)
         final = element.find_element(By.CLASS_NAME, 'ux-textspans--BOLD')
         postage = final.get_attribute('innerHTML')
-        print('postage:')
-        print(postage)
+        print(f'\npostage is:\n{postage}')
         return postage
 
 
