@@ -25,6 +25,7 @@ description_locator = 'desc_ifr'
 img_locator = 'ux-image-filmstrip-carousel-item'
 active_image_locator = "ux-image-carousel-item active image"
 price_locator = 'x-price-primary'
+postage_locator = 'ux-labels-values--shipping'
 
 
 #######################################################################################
@@ -32,12 +33,13 @@ price_locator = 'x-price-primary'
 # class declaration
 
 class Book:
-    def __init__(self, title, condition, description, img_links, price):
+    def __init__(self, title, condition, description, img_links, price, postage):
         self.title = title
         self.condition = condition
         self.description = description
         self.img_links = img_links
         self.price = price
+        self.postage = postage
 
 
 class Grabber:
@@ -126,6 +128,17 @@ class Grabber:
         price = final.get_attribute('innerHTML')
         return price
 
+    def grab_postage(self):
+        element = driver.find_element(By.CLASS_NAME, postage_locator)
+        final = element.find_element(By.CLASS_NAME, 'ux-textspans--BOLD')
+        postage = final.get_attribute('innerHTML')
+        print('postage:')
+        print(postage)
+        return postage
+
+
+    # <<<PROCESSORS>>>
+
     # process image url to hi-res urls
     def img_process(self, array):
         print(array)
@@ -133,7 +146,8 @@ class Grabber:
         for item in array:
             split_items = item.split('s-')
             url = split_items[0] + 's-l1600.jpg'
-            processed_array.append(url)
+            if url not in processed_array:
+                processed_array.append(url)
 
         return processed_array
 
@@ -168,8 +182,9 @@ class Grabber:
             description = self.grab_description()
             img_links = self.grab_imgs()
             price = self.grab_price()
+            postage = self.grab_postage()
 
-            new_book = Book(title, condition, description, img_links, price)
+            new_book = Book(title, condition, description, img_links, price, postage)
             books.append(new_book)
 
         for book in books:
