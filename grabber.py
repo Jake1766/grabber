@@ -93,12 +93,15 @@ class Grabber:
             element = driver.find_element(By.CLASS_NAME, HTML_class)
             return element
         except NoSuchElementException:
-            return '<p1></p1>'
+            return 'failed'
 
     # grabs HTML from an element
     def grab_html(self, element):
-        innerHTML = element.get_attribute('innerHTML')
-        return innerHTML
+        if element != 'failed':
+            innerHTML = element.get_attribute('innerHTML')
+            return innerHTML
+        else:
+            pass
 
     def grab_src(self, element):
         src = element.get_attribute('src')
