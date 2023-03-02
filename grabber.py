@@ -10,6 +10,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+# JSON
+import json
+
 # array of ids
 from id_array import id_array
 
@@ -33,7 +36,8 @@ postage_locator = 'ux-labels-values--shipping'
 # class declaration
 
 class Book:
-    def __init__(self, title, condition, description, img_links, price, postage):
+    def __init__(self, page_id, title, condition, description, img_links, price, postage):
+        self.page_id = page_id
         self.title = title
         self.condition = condition
         self.description = description
@@ -137,9 +141,10 @@ class Grabber:
         return postage
 
 
-    # <<<PROCESSORS>>>
+    # <<<PROCESSORS>>
 
     # process image url to hi-res urls
+
     def img_process(self, array):
         print(array)
         processed_array = []
@@ -152,12 +157,27 @@ class Grabber:
         return processed_array
 
 
-    # process description to raw text in array
+    # process all data to JSON
+
+    def json_dump(self, book):
+        print('dumping:\n' + str(book))
+
+        obj = {
+            'page_id': book.page_id,
+            'title':book.title,
+            'condition': book.condition,
+            'description': book.description,
+            'img_links': book.img_links,
+            'price': book.price,
+            'postage': book.postage
+        }
+
+        json_str = json.dumps(obj, indent=4)
+        print(json_str)
 
     # <<<MAIN LOOP>>>
 
     def run(self, array):
-
         count = 1
         driver = self.driver
         books = []
@@ -184,12 +204,14 @@ class Grabber:
             price = self.grab_price()
             postage = self.grab_postage()
 
-            new_book = Book(title, condition, description, img_links, price, postage)
+            new_book = Book(page_id, title, condition, description, img_links, price, postage)
             books.append(new_book)
+
 
         for book in books:
             print(book.title)
             print(book.img_links)
+            self.json_dump(book)
 
 
 
