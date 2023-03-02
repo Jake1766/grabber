@@ -35,6 +35,7 @@ postage_locator = 'ux-labels-values--shipping'
 
 # <<<CLASSES>>>
 
+
 class Book:
     def __init__(self, page_id, title, condition, description, img_links, price, postage):
         self.page_id = page_id
@@ -45,12 +46,27 @@ class Book:
         self.price = price
         self.postage = postage
 
+class Jsonify:
+
+    def write_to_file(self, dict):
+        print('\nwriting to file...\n')
+        grabber.add_to_dict(dict)
+        # converts dictionary to JSON
+        obj = json.dumps(dict, indent=4)
+
+        # writes JSON to file
+        with open('books.json', 'w') as f:
+            json.dump(dict, f)
+        print('\nwritten to file.\n')
+
+
 
 class Grabber:
     # constructor method
     def __init__(self, id_array, driver):
         self.id_arrray = id_array
         self.driver = driver
+        self.books = {}
 
     # <<<UTILITY FUNCTIONS>>>
 
@@ -131,7 +147,7 @@ class Grabber:
         element = driver.find_element(By.CLASS_NAME, price_locator)
         final = element.find_element(By.CLASS_NAME, 'ux-textspans')
         price = final.get_attribute('innerHTML')
-        price  = price[1:]
+        price = price[1:]
         print(f'\nprice is:\n{price}')
         return str(price)
 
@@ -141,6 +157,20 @@ class Grabber:
         postage = final.get_attribute('innerHTML')
         print(f'\npostage is:\n{postage}')
         return postage
+
+    def add_to_dict(self, new_book):
+        # obj = {
+        #     'page_id': new_book.page_id,
+        #     'title': new_book.title,
+        #     'condition': new_book.condition,
+        #     'description': new_book.description,
+        #     'img_links': new_book.img_links,
+        #     'price': new_book.price,
+        #     'postage': new_book.postage
+        # }
+        key = new_book['page_id']
+        self.books[key] = new_book
+
 
 
     # <<<PROCESSORS>>
@@ -161,21 +191,7 @@ class Grabber:
 
     # process all data to JSON
 
-    def json_dump(self, book):
-        print('dumping:\n' + str(book))
 
-        obj = {
-            'page_id': book.page_id,
-            'title':book.title,
-            'condition': book.condition,
-            'description': book.description,
-            'img_links': book.img_links,
-            'price': book.price,
-            'postage': book.postage
-        }
-
-        json_str = json.dumps(obj, indent=4)
-        print(json_str)
 
     # <<<MAIN LOOP>>>
 
@@ -207,17 +223,24 @@ class Grabber:
             postage = self.grab_postage()
 
             new_book = Book(page_id, title, condition, description, img_links, price, postage)
-            books.append(new_book)
+            self.add_to_dict(new_book)
 
 
         for book in books:
             print(book.title)
             print(book.img_links)
-            self.json_dump(book)
+            jsonify.json_create(book)
 
 
 
 #######################################################################################
 
+# initialise classes
+
 grabber = Grabber(test_array, driver)
+jsonify = Jsonify()
+
+
 grabber.run(test_array)
+jsonify.write_to_file(grabber.books)
+
