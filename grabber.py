@@ -24,6 +24,7 @@ condition_locator = 'ux-textspans--ITALIC'
 description_locator = 'desc_ifr'
 img_locator = 'ux-image-filmstrip-carousel-item'
 active_image_locator = "ux-image-carousel-item active image"
+price_locator = 'x-price-primary'
 
 
 #######################################################################################
@@ -31,11 +32,12 @@ active_image_locator = "ux-image-carousel-item active image"
 # class declaration
 
 class Book:
-    def __init__(self, title, condition, description, img_links):
+    def __init__(self, title, condition, description, img_links, price):
         self.title = title
         self.condition = condition
         self.description = description
         self.img_links = img_links
+        self.price = price
 
 
 class Grabber:
@@ -114,13 +116,34 @@ class Grabber:
             src = element[count].get_attribute('src')
             print(src)
             links.append(src)
+        links = self.img_process(links)
         return links
 
     # grab price
+    def grab_price(self):
+        element = driver.find_element(By.CLASS_NAME, price_locator)
+        final = element.find_element(By.CLASS_NAME, 'ux-textspans')
+        price = final.get_attribute('innerHTML')
+        return price
+
+    # process image url to hi-res urls
+    def img_process(self, array):
+        print(array)
+        processed_array = []
+        for item in array:
+            split_items = item.split('s-')
+            url = split_items[0] + 's-l1600.jpg'
+            processed_array.append(url)
+
+        return processed_array
+
+
+    # process description to raw text in array
 
     # <<<MAIN LOOP>>>
 
     def run(self, array):
+
         count = 1
         driver = self.driver
         books = []
@@ -144,18 +167,14 @@ class Grabber:
             condition = self.grab_condition()
             description = self.grab_description()
             img_links = self.grab_imgs()
+            price = self.grab_price()
 
-            new_book = Book(title, condition, description, img_links)
+            new_book = Book(title, condition, description, img_links, price)
             books.append(new_book)
 
         for book in books:
             print(book.title)
             print(book.img_links)
-
-
-
-
-
 
 
 
