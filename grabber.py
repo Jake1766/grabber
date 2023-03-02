@@ -9,6 +9,7 @@
 # selenium:
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 
 # JSON
 import json
@@ -19,6 +20,9 @@ from id_array import id_array
 driver = webdriver.Chrome('./chromedriver')
 
 test_array = ['171570150605', '181925464719', '181952265161', '172087438233']
+
+# exceptions
+no_condition = ['173027969655']
 
 
 # <<<LOCATORS>>>
@@ -48,15 +52,15 @@ class Book:
 
 class Jsonify:
 
-    def write_to_file(self, dict):
+    def write_to_file(self):
         print('\nwriting to file...\n')
-        grabber.add_to_dict(dict)
-        # converts dictionary to JSON
-        obj = json.dumps(dict, indent=4)
+
+        # # converts dictionary to JSON
+        # obj = json.dumps(grabber.books, indent=4)
 
         # writes JSON to file
         with open('books.json', 'w') as f:
-            json.dump(dict, f)
+            json.dump(grabber.books, f)
         print('\nwritten to file.\n')
 
 
@@ -85,8 +89,11 @@ class Grabber:
 
     def grab_by_class(self, HTML_class):
         driver = self.driver
-        element = driver.find_element(By.CLASS_NAME, HTML_class)
-        return element
+        try:
+            element = driver.find_element(By.CLASS_NAME, HTML_class)
+            return element
+        except NoSuchElementException:
+            return '<p1></p1>'
 
     # grabs HTML from an element
     def grab_html(self, element):
@@ -159,17 +166,21 @@ class Grabber:
         return postage
 
     def add_to_dict(self, new_book):
-        # obj = {
-        #     'page_id': new_book.page_id,
-        #     'title': new_book.title,
-        #     'condition': new_book.condition,
-        #     'description': new_book.description,
-        #     'img_links': new_book.img_links,
-        #     'price': new_book.price,
-        #     'postage': new_book.postage
-        # }
-        key = new_book['page_id']
-        self.books[key] = new_book
+        print('\nnew_book.page_id:\n')
+        print(new_book.page_id)
+        obj = {
+            'page_id': new_book.page_id,
+            'title': new_book.title,
+            'condition': new_book.condition,
+            'description': new_book.description,
+            'img_links': new_book.img_links,
+            'price': new_book.price,
+            'postage': new_book.postage
+        }
+        print('\nobj:\n')
+        print(obj)
+        key = obj['page_id']
+        self.books[key] = obj
 
 
 
@@ -241,6 +252,6 @@ grabber = Grabber(test_array, driver)
 jsonify = Jsonify()
 
 
-grabber.run(test_array)
-jsonify.write_to_file(grabber.books)
-
+grabber.run(no_condition)
+jsonify.write_to_file()
+print(grabber.books)
