@@ -6,6 +6,10 @@
 
 # error on 184168072604
 
+# TODO
+#   - tidy print statements
+#   - update output with JSON on every loop
+
 
 # <<<IMPORTS>>>
 
@@ -223,7 +227,6 @@ class Grabber:
     def run(self, array):
         count = 1
         driver = self.driver
-        books = []
 
         # iterates through all items in array
         for page_id in array:
@@ -250,11 +253,9 @@ class Grabber:
             new_book = Book(page_id, title, condition, description, img_links, price, postage)
             self.add_to_dict(new_book)
 
+            # writes current dict to file
+            jsonify.write_to_file()
 
-        for book in books:
-            print(book.title)
-            print(book.img_links)
-            jsonify.json_create(book)
 
 
 
@@ -267,5 +268,5 @@ jsonify = Jsonify()
 
 
 grabber.run(main_array)
-jsonify.write_to_file()
+
 print(grabber.books)
