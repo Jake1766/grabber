@@ -68,15 +68,13 @@ class Book:
 class Jsonify:
 
     def write_to_file(self):
-        print('\nwriting to file...\n')
-
         # # converts dictionary to JSON
         # obj = json.dumps(grabber.books, indent=4)
 
         # writes JSON to file
         with open('books.json', 'w') as f:
             json.dump(grabber.books, f)
-        print('\nwritten to file.\n')
+        print('\nwritten to file.')
 
 
 class Grabber:
@@ -143,7 +141,7 @@ class Grabber:
     def grab_description(self):
         element = self.grab_by_id(description_locator)
         src = self.grab_src(element)
-        print(f'\ndescription found at:\n{src}')
+        print(f'\ndescription found')
         return src
 
     def grab_imgs(self):
@@ -160,10 +158,9 @@ class Grabber:
         for link in img_links:
             element = link.find_elements(By.TAG_NAME, 'img')
             src = element[count].get_attribute('src')
-            print(src)
             links.append(src)
         links = self.img_process(links)
-        print(f'\nimage links: {links}')
+        print(f'\nimage links found')
         return links
 
     # grab price
@@ -183,7 +180,7 @@ class Grabber:
         return postage
 
     def add_to_dict(self, new_book):
-        print('\nnew_book.page_id:\n')
+        print('\nnew_book.page_id:')
         print(new_book.page_id)
         obj = {
             'page_id': new_book.page_id,
@@ -194,8 +191,6 @@ class Grabber:
             'price': new_book.price,
             'postage': new_book.postage
         }
-        print('\nobj:\n')
-        print(obj)
         key = obj['page_id']
         self.books[key] = obj
 
@@ -206,7 +201,6 @@ class Grabber:
     # process image url to hi-res urls
 
     def img_process(self, array):
-        print(array)
         processed_array = []
         for item in array:
             split_items = item.split('s-')
@@ -269,4 +263,3 @@ jsonify = Jsonify()
 
 grabber.run(main_array)
 
-print(grabber.books)
