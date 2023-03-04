@@ -4,6 +4,9 @@
 # description with subsections
 # links to hi res images
 
+# error on 184168072604
+
+
 # <<<IMPORTS>>>
 
 # selenium:
@@ -23,6 +26,13 @@ test_array = ['171570150605', '181925464719', '181952265161', '172087438233']
 
 # exceptions
 no_condition = ['173027969655']
+
+# unknown (no title?) seems to work???
+uk1 = ['184168072604']
+
+
+# <<<SET ARRAY>>>
+main_array = id_array
 
 
 # <<<LOCATORS>>>
@@ -50,6 +60,7 @@ class Book:
         self.price = price
         self.postage = postage
 
+
 class Jsonify:
 
     def write_to_file(self):
@@ -62,7 +73,6 @@ class Jsonify:
         with open('books.json', 'w') as f:
             json.dump(grabber.books, f)
         print('\nwritten to file.\n')
-
 
 
 class Grabber:
@@ -197,6 +207,7 @@ class Grabber:
         for item in array:
             split_items = item.split('s-')
             url = split_items[0] + 's-l1600.jpg'
+            # prevent multiple entries
             if url not in processed_array:
                 processed_array.append(url)
 
@@ -251,10 +262,10 @@ class Grabber:
 
 # initialise classes
 
-grabber = Grabber(test_array, driver)
+grabber = Grabber(main_array, driver)
 jsonify = Jsonify()
 
 
-grabber.run(no_condition)
+grabber.run(main_array)
 jsonify.write_to_file()
 print(grabber.books)
