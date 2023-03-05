@@ -288,7 +288,7 @@ class Grabber:
             print('\ngrabbing from ' + page_id + '\n')
             print(f'titles checked: {count}/{len(id_array)}')
             # calcs % progress, rounds to 2 dp
-            print(f'prgress:\n{round(count/len(id_array)*100, 2)}%')
+            print(f'progress:\n{round(count/len(id_array)*100, 2)}%')
             count += 1
 
             # loads page onto driver
