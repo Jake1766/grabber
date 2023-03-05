@@ -285,7 +285,7 @@ class Grabber:
         # iterates through all items in array
         for page_id in array:
             self.current_id = page_id
-            print('\ngrabbing from ' + page_id)
+            print('\ngrabbing from ' + page_id + '\n')
             print(f'titles checked: {count}/{len(id_array)}')
             # calcs % progress, rounds to 2 dp
             print(f'prgress:\n{round(count/len(id_array)*100, 2)}%')
@@ -294,7 +294,7 @@ class Grabber:
             # loads page onto driver
             url = f'https://www.ebay.co.uk/itm/{page_id}?hash=item2a8c275483:g:6SEAAOSwVRpZmvjC&amdata=enc%3AAQAHAAAAoDBT52CV4ai8IlB2jaG%2F8u9IZUIx6BKYkZxarIILJSXJrH2x6F2FwqGxCG78%2B3ujWawxphu6KBBvkMd8nUX%2BFRzEBaFpdw%2BE2QgAKk5tKVtNyjLF35xzkhSwHLuevOAWFXQqM14lqqiZSNToA5wTIxfd5mF%2FOBnp0hWtQQ0kSKNdXASARyPKKKop6spGrayCDxtSlCFZKXYx2Db9OyQD%2BTo%3D%7Ctkp%3ABk9SR86p--7RYQ'
 
-            print(f'url is:\n{url}')
+            print(f'\nurl is:\n{url}')
 
             driver.get(url)
 

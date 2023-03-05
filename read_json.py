@@ -14,7 +14,7 @@ class Json_reader:
             self.book_dict = json.loads(file.read())
 
     def print_titles(self):
-        print('\nprinting titles...')
+        print('\nprinting titles...\n')
         for id in self.book_dict:
             print(self.book_dict[id]['title'])
 
