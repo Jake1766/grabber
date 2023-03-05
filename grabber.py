@@ -4,11 +4,22 @@
 # description with subsections
 # links to hi res images
 
-# error on 184168072604
+# error on 184168066720  - no title?
+#  File "C:\Users\jaker\AppData\Roaming\Python\Python39\site-packages\selenium\webdriver\remote\webdriver.py", line 830, in find_element
+#     return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+#   File "C:\Users\jaker\AppData\Roaming\Python\Python39\site-packages\selenium\webdriver\remote\webdriver.py", line 440, in execute
+#     self.error_handler.check_response(response)
+#   File "C:\Users\jaker\AppData\Roaming\Python\Python39\site-packages\selenium\webdriver\remote\errorhandler.py", line 245, in check_response
+#     raise exception_class(message, screen, stacktrace)
+# selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="vi-lkhdr-itmTitl"]"}
+
 
 # TODO
-#   - tidy print statements
-#   - update output with JSON on every loop
+#   - tidy print statements DONE
+#   - update output with JSON on every loop DONE
+#   - implement error catching for when value not found
+#       - should retry 5 or so times
+#       - should create list of failed books
 
 
 # <<<IMPORTS>>>
@@ -30,6 +41,7 @@ test_array = ['171570150605', '181925464719', '181952265161', '172087438233']
 
 # exceptions
 no_condition = ['173027969655']
+no_title = ['184168066720']
 
 # unknown (no title?) seems to work???
 uk1 = ['184168072604']
@@ -40,7 +52,7 @@ main_array = id_array
 
 
 # <<<LOCATORS>>>
-title_locator = 'vi-lkhdr-itmTitl'
+title_locator = 'vi-lkhdr-itmTitlYEET'
 condition_locator = 'ux-textspans--ITALIC'
 description_locator = 'desc_ifr'
 img_locator = 'ux-image-filmstrip-carousel-item'
@@ -83,29 +95,33 @@ class Grabber:
         self.id_arrray = id_array
         self.driver = driver
         self.books = {}
+        self.error_record = []
 
     # <<<UTILITY FUNCTIONS>>>
 
     # loads url into driver
     def load_page(self, page_id):
+        url = f'https://www.ebay.co.uk/itm/{page_id}?hash=item2a8c275483:g:6SEAAOSwVRpZmvjC&amdata=enc%3AAQAHAAAAoDBT52CV4ai8IlB2jaG%2F8u9IZUIx6BKYkZxarIILJSXJrH2x6F2FwqGxCG78%2B3ujWawxphu6KBBvkMd8nUX%2BFRzEBaFpdw%2BE2QgAKk5tKVtNyjLF35xzkhSwHLuevOAWFXQqM14lqqiZSNToA5wTIxfd5mF%2FOBnp0hWtQQ0kSKNdXASARyPKKKop6spGrayCDxtSlCFZKXYx2Db9OyQD%2BTo%3D%7Ctkp%3ABk9SR86p--7RYQ'
         driver = self.driver
         print('loading page for ' + str(page_id))
-        return driver.get(f'https://www.ebay.co.uk/itm/{page_id}?hash=item2a8c275483:g:6SEAAOSwVRpZmvjC&amdata=enc%3AAQAHAAAAoDBT52CV4ai8IlB2jaG%2F8u9IZUIx6BKYkZx'
-                   f'arIILJSXJrH2x6F2FwqGxCG78%2B3ujWawxphu6KBBvkMd8nUX%2BFRzEBaFpdw%2BE2QgAKk5tKVtNyjLF35xzkhSwHLuevOAWFXQqM14lqqiZSNToA5wTIxfd5mF%2FO'
-                   f'Bnp0hWtQQ0kSKNdXASARyPKKKop6spGrayCDxtSlCFZKXYx2Db9OyQD%2BTo%3D%7Ctkp%3ABk9SR86p--7RYQ')
+        print(f'url is:\n{url}')
+        return driver.get(url)
 
     def grab_by_id(self, HTML_id):
-        driver = self.driver
-        element = driver.find_element(By.ID, HTML_id)
-        return element
 
-    def grab_by_class(self, HTML_class):
-        driver = self.driver
         try:
-            element = driver.find_element(By.CLASS_NAME, HTML_class)
+            element = self.driver.find_element(By.ID, HTML_id)
             return element
         except NoSuchElementException:
-            return 'failed'
+            self.error_log(HTML_id, NoSuchElementException)
+            return
+
+    def grab_by_class(self, HTML_class):
+        try:
+            element = self.driver.find_element(By.CLASS_NAME, HTML_class)
+            return element
+        except NoSuchElementException:
+            self.error_log(HTML_class)
 
     # grabs HTML from an element
     def grab_html(self, element):
@@ -113,15 +129,29 @@ class Grabber:
             innerHTML = element.get_attribute('innerHTML')
             return innerHTML
         else:
-            pass
+            self.error_log(element)
 
     def grab_src(self, element):
         src = element.get_attribute('src')
         return src
 
+    def error_log(self, item, exception):
+        error = f'Error: {item} not found on page: {grabber.new_book.page_id}\n\nException:\n{exception}'
+        print(error)
+        self.error_record.append(error)
+
+        with open('error_log.txt', 'w') as file:
+            file.write(self.error_record)
+
+
+
+
     # <<<METHODS>>>
 
     # grab title
+
+
+
     def grab_title(self):
         element = self.grab_by_id(title_locator)
         title = self.grab_html(element)
@@ -244,8 +274,8 @@ class Grabber:
             price = self.grab_price()
             postage = self.grab_postage()
 
-            new_book = Book(page_id, title, condition, description, img_links, price, postage)
-            self.add_to_dict(new_book)
+            self.new_book = Book(page_id, title, condition, description, img_links, price, postage)
+            self.add_to_dict(self.new_book)
 
             # writes current dict to file
             jsonify.write_to_file()
