@@ -31,9 +31,12 @@ from selenium.common.exceptions import NoSuchElementException
 
 # JSON
 import json
+# my json reader
+import read_json
 
 # array of ids
 from id_array import id_array
+
 
 driver = webdriver.Chrome('./chromedriver')
 
@@ -82,6 +85,7 @@ class Jsonify:
     def write_to_file(self):
         # # converts dictionary to JSON
         # obj = json.dumps(grabber.books, indent=4)
+
 
         # writes JSON to file
         with open('books.json', 'w') as f:
@@ -301,6 +305,11 @@ class Grabber:
 
             # writes current dict to file
             jsonify.write_to_file()
+
+
+
+
+
 
 
 
