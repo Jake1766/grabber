@@ -281,7 +281,9 @@ class Grabber:
         for page_id in array:
             self.current_id = page_id
             print('\ngrabbing from ' + page_id)
-            print(f'titles checked: {count}')
+            print(f'titles checked: {count}/{len(id_array)}')
+            # calcs % progress, rounds to 2 dp
+            print(f'prgress:\n{round(count/len(id_array)*100, 2)}%')
             count += 1
 
             # loads page onto driver
@@ -305,6 +307,12 @@ class Grabber:
 
             # writes current dict to file
             jsonify.write_to_file()
+
+            # this prints all collected titles on each loop
+            json_reader = read_json.Json_reader('books.json')
+            json_reader.extract_json()
+            json_reader.print_titles()
+
 
 
 
