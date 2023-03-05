@@ -52,7 +52,7 @@ main_array = id_array
 
 
 # <<<LOCATORS>>>
-title_locator = 'vi-lkhdr-itmTitlYEET'
+title_locator = 'vi-lkhdr-itmTitl'
 condition_locator = 'ux-textspans--ITALIC'
 description_locator = 'desc_ifr'
 img_locator = 'ux-image-filmstrip-carousel-item'
@@ -96,6 +96,7 @@ class Grabber:
         self.driver = driver
         self.books = {}
         self.error_record = []
+        self.current_id = '0'
 
     # <<<UTILITY FUNCTIONS>>>
 
@@ -113,8 +114,8 @@ class Grabber:
             element = self.driver.find_element(By.ID, HTML_id)
             return element
         except NoSuchElementException:
-            self.error_log(HTML_id, NoSuchElementException)
-            return
+            self.error_log(HTML_id)
+            return 'failed'
 
     def grab_by_class(self, HTML_class):
         try:
@@ -132,16 +133,21 @@ class Grabber:
             self.error_log(element)
 
     def grab_src(self, element):
-        src = element.get_attribute('src')
-        return src
+        try:
+            src = element.get_attribute('src')
+            return src
 
-    def error_log(self, item, exception):
-        error = f'Error: {item} not found on page: {grabber.new_book.page_id}\n\nException:\n{exception}'
+        except:
+            self.error_log(element)
+            return 'failed'
+
+    def error_log(self, item):
+        error = f'Error: {item} not found on page: {self.current_id}\n'
         print(error)
         self.error_record.append(error)
 
         with open('error_log.txt', 'w') as file:
-            file.write(self.error_record)
+            file.write(str(self.error_record))
 
 
 
@@ -161,11 +167,16 @@ class Grabber:
 
     # grab condition
     def grab_condition(self):
-        element = self.grab_by_class(condition_locator)
-        condition = self.grab_html(element)
-        print('\ncondition is:')
-        print(condition)
-        return condition
+        try:
+            element = self.grab_by_class(condition_locator)
+            condition = self.grab_html(element)
+            print('\ncondition is:')
+            print(condition)
+            return condition
+
+        except:
+            self.error_log(condition_locator)
+            return 'failed'
 
     # grab description
     def grab_description(self):
@@ -195,19 +206,29 @@ class Grabber:
 
     # grab price
     def grab_price(self):
-        element = driver.find_element(By.CLASS_NAME, price_locator)
-        final = element.find_element(By.CLASS_NAME, 'ux-textspans')
-        price = final.get_attribute('innerHTML')
-        price = price[1:]
-        print(f'\nprice is:\n{price}')
-        return str(price)
+        try:
+            element = driver.find_element(By.CLASS_NAME, price_locator)
+            final = element.find_element(By.CLASS_NAME, 'ux-textspans')
+            price = final.get_attribute('innerHTML')
+            price = price[1:]
+            print(f'\nprice is:\n{price}')
+            return str(price)
+
+        except:
+            self.error_log('price')
+            return 'failed'
 
     def grab_postage(self):
-        element = driver.find_element(By.CLASS_NAME, postage_locator)
-        final = element.find_element(By.CLASS_NAME, 'ux-textspans--BOLD')
-        postage = final.get_attribute('innerHTML')
-        print(f'\npostage is:\n{postage}')
-        return postage
+        try:
+            element = driver.find_element(By.CLASS_NAME, postage_locator)
+            final = element.find_element(By.CLASS_NAME, 'ux-textspans--BOLD')
+            postage = final.get_attribute('innerHTML')
+            print(f'\npostage is:\n{postage}')
+            return postage
+
+        except:
+            self.error_log('postage')
+            return 'failed'
 
     def add_to_dict(self, new_book):
         print('\nnew_book.page_id:')
@@ -254,6 +275,7 @@ class Grabber:
 
         # iterates through all items in array
         for page_id in array:
+            self.current_id = page_id
             print('\ngrabbing from ' + page_id)
             print(f'titles checked: {count}')
             count += 1
