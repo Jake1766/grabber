@@ -19,7 +19,9 @@ class Json_reader:
             print(self.book_dict[id]['title'])
 
 
-
+# json_reader = Json_reader('previous_outputs/1_762.json')
+# json_reader.extract_json()
+# json_reader.print_titles()
 
 
 

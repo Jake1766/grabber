@@ -45,6 +45,7 @@ test_array = ['171570150605', '181925464719', '181952265161', '172087438233']
 # exceptions
 no_condition = ['173027969655']
 no_title = ['184168066720']
+no_image = ['174686231699']
 
 # unknown (no title?) seems to work???
 uk1 = ['184168072604']
@@ -192,21 +193,25 @@ class Grabber:
     def grab_imgs(self):
         count = 0
         links = []
-        img_links = driver.find_elements(By.CLASS_NAME, img_locator)
+        try:
+            img_links = driver.find_elements(By.CLASS_NAME, img_locator)
 
-        #need to grab active image seperately
-        active = driver.find_element(By.CSS_SELECTOR, "div.ux-image-carousel-item");
-        img = active.find_element(By.TAG_NAME, 'img')
-        link = img.get_attribute('src')
-        links.append(link)
+            #need to grab active image seperately
+            active = driver.find_element(By.CSS_SELECTOR, "div.ux-image-carousel-item");
+            img = active.find_element(By.TAG_NAME, 'img')
+            link = img.get_attribute('src')
+            links.append(link)
 
-        for link in img_links:
-            element = link.find_elements(By.TAG_NAME, 'img')
-            src = element[count].get_attribute('src')
-            links.append(src)
-        links = self.img_process(links)
-        print(f'\nimage links found')
-        return links
+            for link in img_links:
+                element = link.find_elements(By.TAG_NAME, 'img')
+                src = element[count].get_attribute('src')
+                links.append(src)
+            links = self.img_process(links)
+            print(f'\nimage links found')
+            return links
+        except:
+            print('failed to find image')
+            return 'failed'
 
     # grab price
     def grab_price(self):
@@ -287,13 +292,11 @@ class Grabber:
             count += 1
 
             # loads page onto driver
-            driver.get(
-                f'https://www.ebay.co.uk/itm/{page_id}?hash=item2a8c275483:'
-                f'g:6SEAAOSwVRpZmvjC&amdata=enc%3AAQAHAAAAoDBT52CV4ai8IlB2j'
-                f'aG%2F8u9IZUIx6BKYkZxarIILJSXJrH2x6F2FwqGxCG78%2B3ujWawxph'
-                f'u6KBBvkMd8nUX%2BFRzEBaFpdw%2BE2QgAKk5tKVtNyjLF35xzkhSwHLu'
-                f'evOAWFXQqM14lqqiZSNToA5wTIxfd5mF%2FOBnp0hWtQQ0kSKNdXASARy'
-                f'PKKKop6spGrayCDxtSlCFZKXYx2Db9OyQD%2BTo%3D%7Ctkp%3ABk9SR86p--7RYQ')
+            url = f'https://www.ebay.co.uk/itm/{page_id}?hash=item2a8c275483:g:6SEAAOSwVRpZmvjC&amdata=enc%3AAQAHAAAAoDBT52CV4ai8IlB2jaG%2F8u9IZUIx6BKYkZxarIILJSXJrH2x6F2FwqGxCG78%2B3ujWawxphu6KBBvkMd8nUX%2BFRzEBaFpdw%2BE2QgAKk5tKVtNyjLF35xzkhSwHLuevOAWFXQqM14lqqiZSNToA5wTIxfd5mF%2FOBnp0hWtQQ0kSKNdXASARyPKKKop6spGrayCDxtSlCFZKXYx2Db9OyQD%2BTo%3D%7Ctkp%3ABk9SR86p--7RYQ'
+
+            print(f'url is:\n{url}')
+
+            driver.get(url)
 
             title = self.grab_title()
             condition = self.grab_condition()
