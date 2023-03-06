@@ -274,8 +274,6 @@ class Grabber:
 
     # process all data to JSON
 
-
-
     # <<<MAIN LOOP>>>
 
     def run(self, array):

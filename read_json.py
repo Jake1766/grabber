@@ -18,6 +18,8 @@ class Json_reader:
         for id in self.book_dict:
             print(self.book_dict[id]['title'])
 
+    def price_total:
+ for item in
 
 # json_reader = Json_reader('previous_outputs/1_762.json')
 # json_reader.extract_json()
