@@ -6,6 +6,9 @@ class Json_reader:
     def __init__(self, file_path):
         self.file_path = file_path
         self.book_dict = {}
+        self.running = True
+        self.menu_options = '1. Print all titles\n2. Print total price\nx: Exit\n: '
+
 
     def extract_json(self):
         print('extracting json...')
@@ -30,11 +33,28 @@ class Json_reader:
             elif price == 'failed':
                 print('invalid target...')
 
+    def main_options(self):
+        choice = input(self.menu_options)
+        if choice == 'x':
+            self.running = False
+        if choice == 1:
+            print('Printing titles...')
+
+        if choice == 2:
+            print('calculating total price')
+
+    def main_loop(self):
+        while self.running:
+            self.main_options()
+
 
 json_reader = Json_reader('previous_outputs/all_books.json')
+json_reader.main_loop()
+
+
 json_reader.extract_json()
-json_reader.print_titles()
-json_reader.price_total()
+
+
 
 
 
