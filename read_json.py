@@ -1,15 +1,19 @@
 import json
 import time
 
+json_path = 'previous_outputs/all_books.json'
+error_path = 'error_log.txt'
+
+
 class Json_reader:
     #constructor method
     def __init__(self, file_path):
         self.file_path = file_path
         self.book_dict = {}
         self.running = True
-        self.menu_options = '1. Print all titles\n2. Print total price\nx: Exit\n: '
+        self.menu_options = '1. Print all titles\n2. Print total price\n3. View errors\nx: Exit\n: '
 
-
+    # extracts json to dictionary
     def extract_json(self):
         print('extracting json...')
         with open(self.file_path) as file:
@@ -18,6 +22,7 @@ class Json_reader:
 
     def print_titles(self):
         print('\nprinting titles...\n')
+        print(len(self.book_dict))
         for id in self.book_dict:
             print(self.book_dict[id]['title'])
 
@@ -39,20 +44,21 @@ class Json_reader:
             self.running = False
         if choice == 1:
             print('Printing titles...')
-
         if choice == 2:
             print('calculating total price')
+        if choice == 3:
+            error_reader = Error_reader(error_path)
+            error_reader.main()
 
     def main_loop(self):
         while self.running:
             self.main_options()
 
+class Error_reader:
+    def __init__(self, file_path):
+        self.file_path = file_path
 
-json_reader = Json_reader('previous_outputs/all_books.json')
-json_reader.main_loop()
 
-
-json_reader.extract_json()
 
 
 
