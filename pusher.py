@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver import ActionChains
+import pyperclip
 import read_json
 
 import time
@@ -53,10 +54,10 @@ class Pusher:
         # should be able to input raw html now
 
         desc_box = self.driver.find_element(By.XPATH, "/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[1]/div/div/div[2]/div/div/div[2]/div[2]/div[2]/div/div/div[2]/div[2]/div")
-        # self.driver.execute_script(f"document.getElementById('product-description').innerHTML={desc_html};")
         desc_box.click()
         print('clicked description box...\n')
-        desc_box.send_keys(desc_html)
+        pyperclip.copy(desc_html)
+        desc_box.send_keys(Keys.CONTROL, 'v')
         print('description added.\n')
 
 
@@ -95,8 +96,15 @@ class Pusher:
 
     def push_price(self, price):
         print('pushing price...\n')
-        price_box = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[3]/div[2]/div/div/div/div/div/div/div[1]/div[2]/div')
-        price_box.click()
+        tries = 0
+        while tries < 5:
+            try:
+                price_box = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[3]/div[2]/div/div/div/div/div/div/div[1]/div[2]/div')
+                price_box.click()
+                tries = 5
+            except:
+                print('failed to click price box')
+                tries += 1
 
         tries = 0
         while tries < 5:
@@ -116,13 +124,28 @@ class Pusher:
 
     def product_list_screen(self):
         print('navigating to product list screen\n')
-        nav_button = self.driver.find_element(By.CLASS_NAME, 'Polaris-Breadcrumbs__Breadcrumb_llsun')
-        nav_button.click()
+        tries = 0
+        while tries < 5:
+            try:
+                nav_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[1]/div/nav/a')
+                nav_button.click()
+                tries = 5
+            except:
+                print('failed to navigate to product list screen...')
+                tries += 1
 
     def new_product(self):
         print('adding new product...\n')
-        new_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[2]/div[2]/div/a')
-        new_button.click()
+        tries = 0
+        while tries < 5:
+            try:
+                new_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[2]/div[2]/div/a')
+                new_button.click()
+                tries = 5
+
+            except:
+                print('failed to navigate to new product')
+                tries += 1
 
     def main(self):
         self.driver.get(url)
@@ -143,11 +166,11 @@ class Pusher:
             self.push_price(book['price'])
             time.sleep(2)
             self.save()
-            time.sleep(2)
+            time.sleep(4)
             self.product_list_screen()
-            time.sleep(2)
+            time.sleep(4)
             self.new_product()
-            time.sleep(2)
+            time.sleep(4)
 
 
 
