@@ -56,12 +56,20 @@ class Pusher:
         # self.driver.execute_script(f"document.getElementById('product-description').innerHTML={desc_html};")
         desc_box.click()
         print('clicked description box...\n')
-        time.sleep(4)
         desc_box.send_keys(desc_html)
-        input('enter any key to exit\n: ')
+        print('description added.\n')
 
-    def push_imgs(self):
-        pass
+
+    def push_imgs(self, array):
+        for url in array:
+            # need to press button to open entry field for url
+            url_add_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[2]/div/div/div[3]/div/div/div[2]/div/div/div[1]/div/button')
+            url_add_button.click()
+            entry_field = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[2]/div/section/div/div/div/div[2]/div/div/input')
+            entry_field.click()
+            entry_field.send_keys(url)
+            enter_url = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[3]/div/div/div[2]/button[2]/span/span')
+            enter_url.click()
 
     def push_price(self):
         pass
@@ -79,6 +87,8 @@ class Pusher:
             self.push_title(book['title'])
 
             self.push_description(book['description'])
+
+            self.push_imgs(book['img_links'])
 
             time.sleep(60)
 
