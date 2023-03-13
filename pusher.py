@@ -33,7 +33,7 @@ class Pusher:
 
     def push_title(self, title):
         print(f'pushing title:\n{title}\n')
-        element = self.driver.find_element(By.ID, title_locator)
+        element = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[1]/div/div/div[1]/div/div[2]/div/div/input')
         element.send_keys(title)
         time.sleep(3)
 
@@ -94,8 +94,20 @@ class Pusher:
             submit_url.click()
 
     def push_price(self, price):
-        price_box = self.driver.find_element(By.ID, 'PolarisTextField40')
-        price_box.send_keys(price)
+        print('pushing price...\n')
+        price_box = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[3]/div[2]/div/div/div/div/div/div/div[1]/div[2]/div')
+        price_box.click()
+
+        tries = 0
+        while tries < 5:
+            try:
+                price_box = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[3]/div[2]/div/div/div/div/div/div/div[1]/div[2]/div/div/input')
+                price_box.send_keys(price)
+                tries = 5
+
+            except:
+                print('failed to push price')
+                tries += 1
 
     def save(self):
         print('saving product...')
@@ -109,8 +121,8 @@ class Pusher:
 
     def new_product(self):
         print('adding new product...\n')
-        save_button = self.driver.find_element(By.CSS_SELECTOR, 'button.Polaris-Button_r99lw.Polaris-Button--primary_7k9zs')
-        save_button.click()
+        new_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[2]/div[2]/div/a')
+        new_button.click()
 
     def main(self):
         self.driver.get(url)
@@ -129,13 +141,13 @@ class Pusher:
             self.push_imgs(book['img_links'])
 
             self.push_price(book['price'])
-
-            self.product_list_screen()
-
-            self.new_product()
-
+            time.sleep(2)
             self.save()
-
+            time.sleep(2)
+            self.product_list_screen()
+            time.sleep(2)
+            self.new_product()
+            time.sleep(2)
 
 
 
