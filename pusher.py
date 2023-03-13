@@ -61,25 +61,63 @@ class Pusher:
 
 
     def push_imgs(self, array):
+        print(f'urls:\n{array}')
         for url in array:
             # need to press button to open entry field for url
-            url_add_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[2]/div/div/div[3]/div/div/div[2]/div/div/div[1]/div/button')
-            url_add_button.click()
-            entry_field = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[2]/div/section/div/div/div/div[2]/div/div/input')
-            entry_field.click()
+            print(f'adding url: {url}\n')
+            tries = 0
+            while tries < 5:
+                try:
+                    url_add_button = self.driver.find_element(By.CLASS_NAME, 'Polaris-Link_yj5sy')
+                    url_add_button.click()
+                    tries += 5
+
+                except:
+                    print(f'failed to click \'add from url\' button x{tries}')
+                    tries += 1
+
+            tries = 0
+            while tries < 5:
+                try:
+                    entry_field = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[2]/div/section/div/div/div/div[2]/div/div/input')
+                    entry_field.click()
+                    tries += 5
+
+                except:
+                    print(f'failed to select entry field x{tries}')
+                    tries += 1
+
             entry_field.send_keys(url)
-            enter_url = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[3]/div/div/div[2]/button[2]/span/span')
-            enter_url.click()
 
-    def push_price(self):
-        pass
 
+            submit_url = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[3]/div/div/div[2]/button[2]/span/span')
+            submit_url.click()
+
+    def push_price(self, price):
+        price_box = self.driver.find_element(By.ID, 'PolarisTextField40')
+        price_box.send_keys(price)
+
+    def save(self):
+        print('saving product...')
+        save_button = self.driver.find_element(By.CSS_SELECTOR, 'button.Polaris-Button_r99lw.Polaris-Button--primary_7k9zs')
+        save_button.click()
+
+    def product_list_screen(self):
+        print('navigating to product list screen\n')
+        nav_button = self.driver.find_element(By.CLASS_NAME, 'Polaris-Breadcrumbs__Breadcrumb_llsun')
+        nav_button.click()
+
+    def new_product(self):
+        print('adding new product...\n')
+        save_button = self.driver.find_element(By.CSS_SELECTOR, 'button.Polaris-Button_r99lw.Polaris-Button--primary_7k9zs')
+        save_button.click()
 
     def main(self):
         self.driver.get(url)
         input('press enter to start')
 
         dict = self.dict
+
         for item in dict:
 
             book = dict[item]
@@ -90,7 +128,14 @@ class Pusher:
 
             self.push_imgs(book['img_links'])
 
-            time.sleep(60)
+            self.push_price(book['price'])
+
+            self.product_list_screen()
+
+            self.new_product()
+
+            self.save()
+
 
 
 
