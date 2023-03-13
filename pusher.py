@@ -11,7 +11,8 @@ email = 'jakerandall07022@gmail.com'
 # locators
 
 title_locator = 'PolarisTextField1'
-description_locator = 'product-description_iframecontainer'
+# description_pull_locator =
+description_push_locator = 'product-description_iframecontainer'
 img_locator = ''
 price_locator = ''
 
@@ -33,12 +34,26 @@ class Pusher:
         print(f'pushing title:\n{title}\n')
         element = self.driver.find_element(By.ID, title_locator)
         element.send_keys(title)
-        time.sleep(10)
+        time.sleep(3)
 
     def push_description(self, desc_url):
         print(f'pushing description from {desc_url}')
         self.driver_2.get(desc_url)
-        self.driver_2.find_element(By.TAG_NAME, 'table')
+        desc_html = self.driver_2.find_element(By.TAG_NAME, 'table')
+        desc_html = desc_html.get_attribute('innerHTML')
+        print(f'html is:/n{desc_html}')
+
+        # need to press button to write html
+        html_button = self.driver_2.find_element(By.CSS_SELECTOR, "button['//@class=OIVe2 ISVaC j3vXR']")
+        html_button.click()
+        time.sleep(2)
+
+        # should be able to input raw html now
+
+        desc_box = self.driver.find_element(description_push_locator)
+        desc_box.send_keys(desc_html)
+
+        input('enter any key to exit\n: ')
 
     def push_imgs(self):
         pass
