@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver import ActionChains
 import read_json
 
 import time
@@ -10,9 +11,9 @@ url = 'https://yeetskeetdelete-8142.myshopify.com/admin/products/new'
 email = 'jakerandall07022@gmail.com'
 # locators
 
-title_locator = 'PolarisTextField1'
+title_locator = 'PolarisTextField1' # id
 # description_pull_locator =
-description_push_locator = 'product-description_iframecontainer'
+description_push_locator = 'product-description' # id name
 img_locator = ''
 price_locator = ''
 
@@ -37,22 +38,26 @@ class Pusher:
         time.sleep(3)
 
     def push_description(self, desc_url):
-        print(f'pushing description from {desc_url}')
+        print(f'pushing description from {desc_url}\n')
         self.driver_2.get(desc_url)
         desc_html = self.driver_2.find_element(By.TAG_NAME, 'table')
         desc_html = desc_html.get_attribute('innerHTML')
-        print(f'html is:/n{desc_html}')
+        print(type(desc_html))
+        print(f'html is:\n{desc_html}\n')
 
         # need to press button to write html
-        html_button = self.driver_2.find_element(By.CSS_SELECTOR, "button['//@class=OIVe2 ISVaC j3vXR']")
+        html_button = self.driver.find_element(By.CSS_SELECTOR, "button.OIVe2.ISVaC.j3vXR")
         html_button.click()
         time.sleep(2)
 
         # should be able to input raw html now
 
-        desc_box = self.driver.find_element(description_push_locator)
+        desc_box = self.driver.find_element(By.XPATH, "/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[1]/div/div/div[2]/div/div/div[2]/div[2]/div[2]/div/div/div[2]/div[2]/div")
+        # self.driver.execute_script(f"document.getElementById('product-description').innerHTML={desc_html};")
+        desc_box.click()
+        print('clicked description box...\n')
+        time.sleep(4)
         desc_box.send_keys(desc_html)
-
         input('enter any key to exit\n: ')
 
     def push_imgs(self):
@@ -64,7 +69,7 @@ class Pusher:
 
     def main(self):
         self.driver.get(url)
-        input('press enter any key to start\n: ')
+        input('press enter to start')
 
         dict = self.dict
         for item in dict:
