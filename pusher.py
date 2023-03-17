@@ -80,7 +80,7 @@ class Pusher:
             tries = 0
             while tries < 5:
                 try:
-                    entry_field = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[2]/div/section/div/div/div/div[2]/div/div/input')
+                    entry_field = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[13]/div[1]/div/div/div/div/div[2]/div/section/div/div/div/div[2]/div/div/input')
                     entry_field.click()
                     tries += 5
 
@@ -88,10 +88,17 @@ class Pusher:
                     print(f'failed to select entry field x{tries}')
                     tries += 1
 
-            entry_field.send_keys(url)
+            tries = 0
+            while tries < 5:
+                try:
+                    entry_field.send_keys(url)
+                    tries = 5
+                except:
+                    print(f'failed to enter url x{tries}')
+                    tries += 1
 
 
-            submit_url = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[3]/div/div/div[2]/button[2]/span/span')
+            submit_url = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[13]/div[1]/div/div/div/div/div[3]/div/div/div[2]/button[2]')
             submit_url.click()
 
     def push_price(self, price):
@@ -119,8 +126,14 @@ class Pusher:
 
     def save(self):
         print('saving product...')
-        save_button = self.driver.find_element(By.CSS_SELECTOR, 'button.Polaris-Button_r99lw.Polaris-Button--primary_7k9zs')
-        save_button.click()
+        tries = 0
+        while tries < 5:
+            try:
+                save_button = self.driver.find_element(By.CSS_SELECTOR, 'button.Polaris-Button_r99lw.Polaris-Button--primary_7k9zs')
+                save_button.click()
+                tries = 5
+            except:
+                print('failed to save, ')
 
     def product_list_screen(self):
         print('navigating to product list screen\n')
@@ -157,6 +170,8 @@ class Pusher:
 
             book = dict[item]
 
+            print(f'id is: {item}')
+
             self.push_title(book['title'])
 
             self.push_description(book['description'])
@@ -164,6 +179,7 @@ class Pusher:
             self.push_imgs(book['img_links'])
 
             self.push_price(book['price'])
+
             time.sleep(2)
             self.save()
             time.sleep(4)
@@ -179,6 +195,10 @@ class Pusher:
 
 read_json = read_json.Json_reader(json_path)
 read_json.extract_json()
+
+all_books = read_json.book_dict
+error =
+
 pusher = Pusher(read_json.book_dict)
 pusher.main()
 
