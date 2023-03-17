@@ -189,18 +189,40 @@ class Pusher:
             time.sleep(4)
 
 
+# going to build an interface for testing individual functions
+
+class Interface:
+    def __init__(self, pusher):
+        self.menu_options = '1. iterate all books\n 2. iterate by id\n3. individual function on specific book'
+        self.running = True
+        self.all_books = all_books
+        self.pusher = pusher
+
+    def main_loop(self):
+        while self.running:
+            print(self.menu_options)
+            option = input(': ')
+            if option == '1':
+                self.pusher.main()
 
 
 
 
+# class instantiation
 read_json = read_json.Json_reader(json_path)
 read_json.extract_json()
-
 all_books = read_json.book_dict
-error =
+pusher = Pusher(all_books)
+interface = Interface(pusher)
 
-pusher = Pusher(read_json.book_dict)
-pusher.main()
+
+
+
+# error = '172091401580'
+
+
+interface.main_loop()
+
 
 
 
