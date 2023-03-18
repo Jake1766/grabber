@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver import ActionChains
 import pyperclip
 import read_json
+import traceback
 
 import time
 
@@ -18,12 +19,15 @@ description_push_locator = 'product-description' # id name
 img_locator = ''
 price_locator = ''
 
+driver = webdriver.Chrome('./chromedriver')
+driver_2 = webdriver.Chrome('./chromedriver')
+
 
 class Pusher:
     def __init__(self, dict):
         self.running = True
-        self.driver = webdriver.Chrome('./chromedriver')
-        self.driver_2 = webdriver.Chrome('./chromedriver')
+        self.driver = driver
+        self.driver_2 = driver_2
         self.dict = dict
 
     # utility
@@ -71,7 +75,8 @@ class Pusher:
                 try:
                     url_add_button = self.driver.find_element(By.CLASS_NAME, 'Polaris-Link_yj5sy')
                     url_add_button.click()
-                    tries += 5
+                    print('\nsuccess!')
+                    tries = 5
 
                 except:
                     print(f'failed to click \'add from url\' button x{tries}')
@@ -82,6 +87,7 @@ class Pusher:
                 try:
                     entry_field = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[13]/div[1]/div/div/div/div/div[2]/div/section/div/div/div/div[2]/div/div/input')
                     entry_field.click()
+                    print('\nsuccess!')
                     tries += 5
 
                 except:
@@ -92,6 +98,7 @@ class Pusher:
             while tries < 5:
                 try:
                     entry_field.send_keys(url)
+                    print('\nsuccess!')
                     tries = 5
                 except:
                     print(f'failed to enter url x{tries}')
@@ -108,6 +115,7 @@ class Pusher:
             try:
                 price_box = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[3]/div[2]/div/div/div/div/div/div/div[1]/div[2]/div')
                 price_box.click()
+                print('\nsuccess!')
                 tries = 5
             except:
                 print('failed to click price box')
@@ -118,6 +126,7 @@ class Pusher:
             try:
                 price_box = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[3]/div[2]/div/div/div/div/div/div/div[1]/div[2]/div/div/input')
                 price_box.send_keys(price)
+                print('\nsuccess!\n')
                 tries = 5
 
             except:
@@ -131,9 +140,10 @@ class Pusher:
             try:
                 save_button = self.driver.find_element(By.CSS_SELECTOR, 'button.Polaris-Button_r99lw.Polaris-Button--primary_7k9zs')
                 save_button.click()
+                print('\nsuccess!\n')
                 tries = 5
             except:
-                print('failed to save, ')
+                print('attempted to save, ')
 
     def product_list_screen(self):
         print('navigating to product list screen\n')
@@ -142,9 +152,10 @@ class Pusher:
             try:
                 nav_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[1]/div/nav/a')
                 nav_button.click()
+                print('\nsuccess!\n')
                 tries = 5
             except:
-                print('failed to navigate to product list screen...')
+                print(f'attempted to navigate to product list screen... x{tries}')
                 tries += 1
 
     def new_product(self):
@@ -154,10 +165,11 @@ class Pusher:
             try:
                 new_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[2]/div[2]/div/a')
                 new_button.click()
+                print('\nsuccess!\n')
                 tries = 5
 
             except:
-                print('failed to navigate to new product')
+                print(f'attempted to navigate to new product... x{tries}')
                 tries += 1
 
     def main(self):
@@ -192,18 +204,59 @@ class Pusher:
 # going to build an interface for testing individual functions
 
 class Interface:
-    def __init__(self, pusher):
-        self.menu_options = '1. iterate all books\n 2. iterate by id\n3. individual function on specific book'
+    def __init__(self):
+        self.menu_options = '1. iterate all books\n2. iterate by id\n3. individual function on specific book\nx. Initialise driver'
         self.running = True
         self.all_books = all_books
-        self.pusher = pusher
+
+    def driver_init(self):
+        print('initiliasing driver')
+
+    def individual_book(self):
+
+        pusher = Pusher(all_books)
+        id = input('enter id: ')
+        book = pusher.dict[id]
+
+        print(f'id is: {id}')
+
+        pusher.push_title(book['title'])
+
+        pusher.push_description(book['description'])
+
+        pusher.push_imgs(book['img_links'])
+
+        pusher.push_price(book['price'])
+
+        time.sleep(2)
+        pusher.save()
+        time.sleep(4)
+        pusher.product_list_screen()
+        time.sleep(4)
+        pusher.new_product()
+        time.sleep(4)
 
     def main_loop(self):
         while self.running:
             print(self.menu_options)
             option = input(': ')
+
             if option == '1':
-                self.pusher.main()
+                try:
+                    self.pusher.main()
+                except Exception as e:
+                    print('failed, returning to menu')
+                    print(f'\n{e}')
+
+            if option == '2':
+                try:
+                    self.individual_book()
+                except Exception as e:
+                    print(f'\n{traceback.format_exc()}')
+                    print()
+                    print('failed lol')
+                    print(str(e))
+                    print('')
 
 
 
@@ -212,19 +265,12 @@ class Interface:
 read_json = read_json.Json_reader(json_path)
 read_json.extract_json()
 all_books = read_json.book_dict
-pusher = Pusher(all_books)
-interface = Interface(pusher)
-
-
-
+interface = Interface()
 
 # error = '172091401580'
 
 
 interface.main_loop()
-
-
-
 
 # Scrap code
 
