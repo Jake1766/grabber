@@ -6,6 +6,9 @@ import pyperclip
 import read_json
 import traceback
 
+import requests
+
+
 import time
 
 json_path = 'previous_outputs/all_books.json'
@@ -19,15 +22,15 @@ description_push_locator = 'product-description' # id name
 img_locator = ''
 price_locator = ''
 
-driver = webdriver.Chrome('./chromedriver')
-driver_2 = webdriver.Chrome('./chromedriver')
+# driver = webdriver.Chrome('./chromedriver')
+# driver_2 = webdriver.Chrome('./chromedriver')
 
 
 class Pusher:
     def __init__(self, dict):
         self.running = True
-        self.driver = driver
-        self.driver_2 = driver_2
+        self.driver = interface.driver
+        self.driver_2 = interface.driver_2
         self.dict = dict
 
     # utility
@@ -64,7 +67,6 @@ class Pusher:
         desc_box.send_keys(Keys.CONTROL, 'v')
         print('description added.\n')
 
-
     def push_imgs(self, array):
         print(f'urls:\n{array}')
         for url in array:
@@ -73,9 +75,10 @@ class Pusher:
             tries = 0
             while tries < 5:
                 try:
+                    print('attempting to click \'add url\' button...')
                     url_add_button = self.driver.find_element(By.CLASS_NAME, 'Polaris-Link_yj5sy')
                     url_add_button.click()
-                    print('\nsuccess!')
+                    print('\nsuccess!\n')
                     tries = 5
 
                 except:
@@ -85,28 +88,39 @@ class Pusher:
             tries = 0
             while tries < 5:
                 try:
-                    entry_field = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[13]/div[1]/div/div/div/div/div[2]/div/section/div/div/div/div[2]/div/div/input')
+                    entry_field = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[2]/div/section/div/div/div/div[2]/div/div/input')
                     entry_field.click()
-                    print('\nsuccess!')
+                    print('\nentry field select success!\n')
                     tries += 5
 
-                except:
+                except Exception as e:
                     print(f'failed to select entry field x{tries}')
+                    print(f'\n{e}\n')
+                    print(f'{traceback.format_exc()}\n')
                     tries += 1
 
             tries = 0
             while tries < 5:
                 try:
                     entry_field.send_keys(url)
-                    print('\nsuccess!')
+                    print('\nkey send success!\n')
                     tries = 5
                 except:
-                    print(f'failed to enter url x{tries}')
+                    print(f'failed to enter url x{tries}\n')
                     tries += 1
 
-
-            submit_url = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[13]/div[1]/div/div/div/div/div[3]/div/div/div[2]/button[2]')
-            submit_url.click()
+            tries = 0
+            while tries < 5:
+                try:
+                    print('clicking url add button...')
+                    submit_url = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[3]/div/div/div[2]/button[2]')
+                    submit_url.click()
+                    tries = 5
+                except Exception as e:
+                    tries += 1
+                    print(f'\nadd url button click attempt x{tries}\n')
+                    print(f'{traceback.format_exc}')
+                    print(f'\n{e}\n')
 
     def push_price(self, price):
         print('pushing price...\n')
@@ -142,6 +156,7 @@ class Pusher:
                 save_button.click()
                 print('\nsuccess!\n')
                 tries = 5
+
             except:
                 print('attempted to save, ')
 
@@ -173,7 +188,7 @@ class Pusher:
                 tries += 1
 
     def main(self):
-        self.driver.get(url)
+
         input('press enter to start')
 
         dict = self.dict
@@ -211,6 +226,9 @@ class Interface:
 
     def driver_init(self):
         print('initiliasing driver')
+        self.driver = webdriver.Chrome('./chromedriver')
+        self.driver_2 = webdriver.Chrome('./chromedriver')
+        self.driver.get(url)
 
     def individual_book(self):
 
@@ -243,21 +261,28 @@ class Interface:
 
             if option == '1':
                 try:
-                    self.pusher.main()
+                    pusher = Pusher(all_books)
+                    pusher.main()
                 except Exception as e:
                     print('failed, returning to menu')
-                    print(f'\n{e}')
+                    print(f'\n{traceback.format_exc()}\n')
+                    print(f'\n{e}\n')
 
             if option == '2':
                 try:
                     self.individual_book()
                 except Exception as e:
-                    print(f'\n{traceback.format_exc()}')
+                    print(f'\n{traceback.format_exc()}\n')
                     print()
                     print('failed lol')
                     print(str(e))
                     print('')
 
+            if option == '3':
+                print('function not implemented')
+
+            if option == 'x':
+                self.driver_init()
 
 
 
@@ -267,7 +292,7 @@ read_json.extract_json()
 all_books = read_json.book_dict
 interface = Interface()
 
-# error = '172091401580'
+# img url error = '172091401580'
 
 
 interface.main_loop()
