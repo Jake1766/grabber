@@ -122,6 +122,12 @@ class Pusher:
                     print(f'{traceback.format_exc}')
                     print(f'\n{e}\n')
 
+    def push_imgs_2(self):
+        for image in self.all_books:
+            img_data = requests.get(image).content
+            with open(f'temp/images/temp_image{all_books.index(image)}', 'wb') as handler:
+                handler.write(img_data)
+
     def push_price(self, price):
         print('pushing price...\n')
         tries = 0
@@ -256,6 +262,8 @@ class Interface:
 
     def main_loop(self):
         while self.running:
+            errors = []
+            traces = []
             print(self.menu_options)
             option = input(': ')
 
@@ -264,9 +272,13 @@ class Interface:
                     pusher = Pusher(all_books)
                     pusher.main()
                 except Exception as e:
-                    print('failed, returning to menu')
-                    print(f'\n{traceback.format_exc()}\n')
-                    print(f'\n{e}\n')
+                    print('failed, skipping book & logging error')
+                    trace = traceback.format_exc()
+                    error = e
+                    print(f'\n{trace}\n')
+                    print(f'\n{error}\n')
+                    traces.append(trace)
+                    errors.append(errors)
 
             if option == '2':
                 try:
@@ -279,10 +291,13 @@ class Interface:
                     print('')
 
             if option == '3':
-                print('function not implemented')
+                pusher.push_imgs_2()
 
             if option == 'x':
                 self.driver_init()
+
+            print(errors)
+            print(traces)
 
 
 
