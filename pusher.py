@@ -5,6 +5,7 @@ from selenium.webdriver import ActionChains
 import pyperclip
 import read_json
 import traceback
+import os
 
 import requests
 
@@ -51,10 +52,10 @@ class Pusher:
         desc_html = self.driver_2.find_element(By.TAG_NAME, 'table')
         desc_html = desc_html.get_attribute('innerHTML')
         print(type(desc_html))
-        print(f'html is:\n{desc_html}\n')
+        print(f'\nhtml is:\n{desc_html}\n')
 
         # need to press button to write html
-        html_button = self.driver.find_element(By.CSS_SELECTOR, "button.OIVe2.ISVaC.j3vXR")
+        html_button = self.driver.find_element(By.CSS_SELECTOR, "button.edsvs.mQNNA.B1Gi5")
         html_button.click()
         time.sleep(2)
 
@@ -73,6 +74,7 @@ class Pusher:
             # need to press button to open entry field for url
             print(f'adding url: {url}\n')
             tries = 0
+
             while tries < 5:
                 try:
                     print('attempting to click \'add url\' button...')
@@ -122,11 +124,31 @@ class Pusher:
                     print(f'{traceback.format_exc}')
                     print(f'\n{e}\n')
 
-    def push_imgs_2(self):
-        for image in self.all_books:
-            img_data = requests.get(image).content
-            with open(f'temp/images/temp_image{all_books.index(image)}', 'wb') as handler:
+    def push_imgs_2(self, urls):
+        for link in urls:
+            img_data = requests.get(link).content
+            file_path = f'temp_images/temp_image{urls.index(link)}.jpg'
+
+            with open(file_path, 'wb') as handler:
                 handler.write(img_data)
+
+            for filename in os.listdir('temp_images'):
+                print(f'\nfilepath is: ${file_path}\n')
+                print(f'filename is: ${filename}')
+
+
+                while tries < 5:
+                    try:
+                        print('attempting to click \'add img\' button...')
+                        url_add_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[2]/div/div/div[3]/div/div/div[2]/div/div/div[1]/button')
+                        url_add_button.send_keys()
+                        print('\nsuccess!\n')
+                        tries = 5
+
+                    except:
+                        print(f'failed to click \'add from url\' button x{tries}')
+                        tries += 1
+
 
     def push_price(self, price):
         print('pushing price...\n')
@@ -193,6 +215,7 @@ class Pusher:
                 print(f'attempted to navigate to new product... x{tries}')
                 tries += 1
 
+
     def main(self):
 
         input('press enter to start')
@@ -205,13 +228,30 @@ class Pusher:
 
             print(f'id is: {item}')
 
-            self.push_title(book['title'])
+            try:
+                self.push_title(book['title'])
 
-            self.push_description(book['description'])
+            except Exception as e:
+                print(e)
 
-            self.push_imgs(book['img_links'])
+            try:
+                self.push_description(book['description'])
 
-            self.push_price(book['price'])
+            except Exception as e:
+                print(e)
+
+            try:
+                self.push_imgs_2(book['img_links'])
+
+            except Exception as e:
+                print(e)
+
+            try:
+                self.push_price(book['price'])
+
+            except Exception as e:
+                print(e)
+
 
             time.sleep(2)
             self.save()
@@ -226,7 +266,7 @@ class Pusher:
 
 class Interface:
     def __init__(self):
-        self.menu_options = '1. iterate all books\n2. iterate by id\n3. individual function on specific book\nx. Initialise driver'
+        self.menu_options = '1. iterate all books\n2. iterate by id\n3. individual function \'push img 2\'\nx. Initialise driver'
         self.running = True
         self.all_books = all_books
 
@@ -237,7 +277,6 @@ class Interface:
         self.driver.get(url)
 
     def individual_book(self):
-
         pusher = Pusher(all_books)
         id = input('enter id: ')
         book = pusher.dict[id]
