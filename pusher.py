@@ -124,30 +124,42 @@ class Pusher:
                     print(f'{traceback.format_exc}')
                     print(f'\n{e}\n')
 
+
+
+
+
     def push_imgs_2(self, urls):
         for link in urls:
             img_data = requests.get(link).content
-            file_path = f'temp_images/temp_image{urls.index(link)}.jpg'
+            file_path = fr'C:\Users\jaker\Desktop\Migration\temp_images\temp_image_{urls.index(link)}.jpg'
 
             with open(file_path, 'wb') as handler:
                 handler.write(img_data)
 
-            for filename in os.listdir('temp_images'):
-                print(f'\nfilepath is: ${file_path}\n')
-                print(f'filename is: ${filename}')
+        for filename in os.listdir('temp_images'):
+            file_path = fr'C:\Users\jaker\Desktop\Migration\temp_images/{filename}'
+            print(f'\nfilepath is: {file_path}\n')
+            print(f'filename is: {filename}\n')
+
+            tries = 0
+            while tries < 5:
+                try:
+                    print('attempting to click \'add img\' button...')
+
+                    self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[2]/div/div/div[3]/div/div/div[2]/span/input').send_keys(file_path)
+
+                    time.sleep(5)
+                    print('\nsuccess??\n')
+                    os.remove(file_path)
+                    tries = 5
+
+                except Exception as e:
+                    print(f'failed to add image x{tries}')
+                    print(f'\n{e}\n')
+                    print(f'{traceback.format_exc}\n')
+                    tries += 1
 
 
-                while tries < 5:
-                    try:
-                        print('attempting to click \'add img\' button...')
-                        url_add_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[2]/div/div/div[3]/div/div/div[2]/div/div/div[1]/button')
-                        url_add_button.send_keys()
-                        print('\nsuccess!\n')
-                        tries = 5
-
-                    except:
-                        print(f'failed to click \'add from url\' button x{tries}')
-                        tries += 1
 
 
     def push_price(self, price):
@@ -347,6 +359,7 @@ all_books = read_json.book_dict
 interface = Interface()
 
 # img url error = '172091401580'
+# unknown error = '182618007165'
 
 
 interface.main_loop()
