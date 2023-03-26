@@ -22,6 +22,7 @@ title_locator = 'PolarisTextField1' # id
 description_push_locator = 'product-description' # id name
 img_locator = ''
 price_locator = ''
+failed_books = {}
 
 # driver = webdriver.Chrome('./chromedriver')
 # driver_2 = webdriver.Chrome('./chromedriver')
@@ -159,9 +160,6 @@ class Pusher:
                     print(f'{traceback.format_exc}\n')
                     tries += 1
 
-
-
-
     def push_price(self, price):
         print('pushing price...\n')
         tries = 0
@@ -202,16 +200,13 @@ class Pusher:
 
     def product_list_screen(self):
         print('navigating to product list screen\n')
-        tries = 0
-        while tries < 5:
-            try:
-                nav_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[1]/div/nav/a')
-                nav_button.click()
-                print('\nsuccess!\n')
-                tries = 5
-            except:
-                print(f'attempted to navigate to product list screen... x{tries}')
-                tries += 1
+        nav_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[1]/div/nav/a')
+        nav_button.click()
+        print('\nsuccess!\n')
+
+
+
+
 
     def new_product(self):
         print('adding new product...\n')
@@ -233,10 +228,11 @@ class Pusher:
         input('press enter to start')
 
         dict = self.dict
-
+        count = 1
         for item in dict:
-
+            print(f'\ntitle {count}\n')
             book = dict[item]
+            count += 1
 
             print(f'id is: {item}')
 
@@ -268,10 +264,30 @@ class Pusher:
             time.sleep(2)
             self.save()
             time.sleep(4)
-            self.product_list_screen()
+
+            while tries < 5:
+                tries = 0
+                complete = False
+                try:
+                    self.product_list_screen()
+                    tries += 1
+                    complete = True
+                except Exception as e:
+                    print('failed')
+                    print(e)
+                    tries += 1
+
+            failed_books[item].append(book)
+            file = open("failed_books.py")
+            file.write(failed_books)
+            file.close()
+            if complete == False:
+                continue
+
             time.sleep(4)
             self.new_product()
             time.sleep(4)
+            print(f'failed books:\n{failed_books}')
 
 
 # going to build an interface for testing individual functions
@@ -299,7 +315,7 @@ class Interface:
 
         pusher.push_description(book['description'])
 
-        pusher.push_imgs(book['img_links'])
+        pusher.push_imgs_2(book['img_links'])
 
         pusher.push_price(book['price'])
 
@@ -360,6 +376,9 @@ interface = Interface()
 
 # img url error = '172091401580'
 # unknown error = '182618007165'
+# unknown error = '182565881464'
+# failed to navigate from: '172666105622'
+# failed to navigfate 183113770244
 
 
 interface.main_loop()
