@@ -34,8 +34,13 @@ class Pusher:
         self.driver = interface.driver
         self.driver_2 = interface.driver_2
         self.dict = dict
+        self.id = ''
 
     # utility
+
+    def skip_and_log(self):
+        print('skipping & logging...')
+        print(self.id)
 
     def enter(self, element):
         print('pressing enter...\n')
@@ -48,6 +53,7 @@ class Pusher:
         time.sleep(3)
 
     def push_description(self, desc_url):
+        print(f'íd test:{self.id}')
         print(f'pushing description from {desc_url}\n')
         self.driver_2.get(desc_url)
         desc_html = self.driver_2.find_element(By.TAG_NAME, 'table')
@@ -82,11 +88,16 @@ class Pusher:
                     url_add_button = self.driver.find_element(By.CLASS_NAME, 'Polaris-Link_yj5sy')
                     url_add_button.click()
                     print('\nsuccess!\n')
+                    outcome = True
                     tries = 5
 
                 except:
                     print(f'failed to click \'add from url\' button x{tries}')
+                    outcome = False
                     tries += 1
+
+            if outcome == False:
+                self.skip_and_log()
 
             tries = 0
             while tries < 5:
@@ -94,23 +105,33 @@ class Pusher:
                     entry_field = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[2]/div/section/div/div/div/div[2]/div/div/input')
                     entry_field.click()
                     print('\nentry field select success!\n')
+                    outcome = True
                     tries += 5
 
                 except Exception as e:
                     print(f'failed to select entry field x{tries}')
                     print(f'\n{e}\n')
                     print(f'{traceback.format_exc()}\n')
+                    outcome = False
                     tries += 1
+
+            if outcome == False:
+                self.skip_and_log()
 
             tries = 0
             while tries < 5:
                 try:
                     entry_field.send_keys(url)
                     print('\nkey send success!\n')
+                    outcome = True
                     tries = 5
                 except:
                     print(f'failed to enter url x{tries}\n')
                     tries += 1
+                    outcome = False
+
+            if outcome == False:
+                self.skip_and_log()
 
             tries = 0
             while tries < 5:
@@ -118,12 +139,17 @@ class Pusher:
                     print('clicking url add button...')
                     submit_url = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[14]/div[1]/div/div/div/div/div[3]/div/div/div[2]/button[2]')
                     submit_url.click()
+                    outcome = True
                     tries = 5
                 except Exception as e:
                     tries += 1
                     print(f'\nadd url button click attempt x{tries}\n')
                     print(f'{traceback.format_exc}')
                     print(f'\n{e}\n')
+                    outcome = False
+
+            if outcome == False:
+                self.skip_and_log()
 
 
 
@@ -152,6 +178,7 @@ class Pusher:
                     time.sleep(5)
                     print('\nsuccess??\n')
                     os.remove(file_path)
+                    outcome = True
                     tries = 5
 
                 except Exception as e:
@@ -159,6 +186,10 @@ class Pusher:
                     print(f'\n{e}\n')
                     print(f'{traceback.format_exc}\n')
                     tries += 1
+                    outcome = False
+
+            if outcome == False:
+                self.skip_and_log()
 
     def push_price(self, price):
         print('pushing price...\n')
@@ -168,10 +199,16 @@ class Pusher:
                 price_box = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[3]/div[2]/div/div/div/div/div/div/div[1]/div[2]/div')
                 price_box.click()
                 print('\nsuccess!')
+                outcome = True
                 tries = 5
+
             except:
                 print('failed to click price box')
                 tries += 1
+                outcome = False
+
+        if outcome == False:
+            self.skip_and_log()
 
         tries = 0
         while tries < 5:
@@ -179,11 +216,16 @@ class Pusher:
                 price_box = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[3]/div[2]/div/div/div/div/div/div/div[1]/div[2]/div/div/input')
                 price_box.send_keys(price)
                 print('\nsuccess!\n')
+                outcome = True
                 tries = 5
 
             except:
                 print('failed to push price')
                 tries += 1
+                outcome = False
+
+        if outcome == False:
+            self.skip_and_log()
 
     def save(self):
         print('saving product...')
@@ -193,15 +235,21 @@ class Pusher:
                 save_button = self.driver.find_element(By.CSS_SELECTOR, 'button.Polaris-Button_r99lw.Polaris-Button--primary_7k9zs')
                 save_button.click()
                 print('\nsuccess!\n')
+                outcome = True
                 tries = 5
 
             except:
-                print('attempted to save, ')
+                print(f'attempted to save x{tries}')
+                outcome = False
+
+        if outcome == False:
+            self.skip_and_log()
 
     def product_list_screen(self):
         print('navigating to product list screen\n')
-        nav_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[1]/div/nav/a')
-        nav_button.click()
+        self.driver.get(url)
+        # nav_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[1]/div/nav/a')
+        # nav_button.click()
         print('\nsuccess!\n')
 
 
@@ -216,11 +264,16 @@ class Pusher:
                 new_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[2]/div[2]/div/a')
                 new_button.click()
                 print('\nsuccess!\n')
+                outcome = True
                 tries = 5
 
             except:
                 print(f'attempted to navigate to new product... x{tries}')
                 tries += 1
+                outcome = False
+
+        if outcome == False:
+            self.skip_and_log()
 
 
     def main(self):
@@ -230,9 +283,12 @@ class Pusher:
         dict = self.dict
         count = 1
         for item in dict:
+            time.sleep(4)
             print(f'\ntitle {count}\n')
             book = dict[item]
             count += 1
+
+            self.id = item
 
             print(f'id is: {item}')
 
@@ -265,27 +321,29 @@ class Pusher:
             self.save()
             time.sleep(4)
 
-            while tries < 5:
-                tries = 0
-                complete = False
-                try:
-                    self.product_list_screen()
-                    tries += 1
-                    complete = True
-                except Exception as e:
-                    print('failed')
-                    print(e)
-                    tries += 1
+            tries = 0
 
-            failed_books[item].append(book)
-            file = open("failed_books.py")
-            file.write(failed_books)
-            file.close()
-            if complete == False:
-                continue
+            # while tries < 5:
+            #     tries = 0
+            #     complete = False
+            #     try:
+            #         self.product_list_screen()
+            #         tries += 1
+            #         complete = True
+            #     except Exception as e:
+            #         print('failed')
+            #         print(e)
+            #         tries += 1
+            #
+            # failed_books[item].append(book)
+            # file = open("failed_books.py")
+            # file.write(failed_books)
+            # file.close()
+            # if complete == False:
+            #     continue
 
             time.sleep(4)
-            self.new_product()
+            self.product_list_screen()
             time.sleep(4)
             print(f'failed books:\n{failed_books}')
 
@@ -328,6 +386,7 @@ class Interface:
         time.sleep(4)
 
     def main_loop(self):
+
         while self.running:
             errors = []
             traces = []
