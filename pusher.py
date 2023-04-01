@@ -25,6 +25,11 @@ img_locator = ''
 price_locator = ''
 failed_books = []
 
+
+# pause timings
+sleep_a = 2
+sleep_b = 0.5
+
 # driver = webdriver.Chrome('./chromedriver')
 # driver_2 = webdriver.Chrome('./chromedriver')
 
@@ -46,9 +51,13 @@ class Pusher:
         failed_books.append(self.id)
         file.write(str(failed_books))
         self.driver.refresh()
-        alert = Alert(self.driver)
-        time.sleep(2)
-        alert.accept()
+        time.sleep(sleep_b)
+        try:
+            alert = Alert(self.driver)
+            alert.accept()
+        except:
+            print('alert dismiss failed, no alert?')
+
 
     def enter(self, element):
         print('pressing enter...\n')
@@ -58,15 +67,27 @@ class Pusher:
         # catch random alert boxes
         try:
             alert = self.driver.switch_to.alert
-            time.sleep(1)
-            alert.dismiss()
+            time.sleep(sleep_b)
+            alert.accept()
         except:
             print('no alert box!')
 
-        print(f'pushing title:\n{title}\n')
-        element = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[1]/div/div/div[1]/div/div[2]/div/div/input')
-        element.send_keys(title)
-        time.sleep(3)
+
+        tries = 0
+        while tries < 5:
+            try:
+                print(f'pushing title:\n{title}\n')
+                element = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[1]/div/div/div[1]/div/div[2]/div/div/input')
+                element.send_keys(title)
+                time.sleep(sleep_a)
+                success = True
+                tries = 5
+
+            except Exception as e:
+                print(e)
+                tries += 1
+            if success == False:
+                self.skip_and_log()
 
     def push_description(self, desc_url):
         print(f'íd test:{self.id}')
@@ -80,7 +101,7 @@ class Pusher:
         # need to press button to write html
         html_button = self.driver.find_element(By.CSS_SELECTOR, "button.edsvs.mQNNA.B1Gi5")
         html_button.click()
-        time.sleep(2)
+        time.sleep(sleep_b)
 
         # should be able to input raw html now
 
@@ -191,7 +212,7 @@ class Pusher:
 
                     self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[2]/div/div/div[3]/div/div/div[2]/span/input').send_keys(file_path)
 
-                    time.sleep(5)
+                    time.sleep(sleep_a)
                     print('\nsuccess??\n')
                     os.remove(file_path)
                     outcome = True
@@ -300,7 +321,7 @@ class Pusher:
         dict = self.dict
         count = 1
         for item in dict:
-            time.sleep(4)
+            time.sleep(sleep_a)
             print(f'\ntitle {count}\n')
             book = dict[item]
             count += 1
@@ -315,11 +336,19 @@ class Pusher:
             except Exception as e:
                 print(e)
 
-            try:
-                self.push_description(book['description'])
 
-            except Exception as e:
-                print(e)
+            tries = 0
+            while tries < 5:
+                try:
+                    self.push_description(book['description'])
+                    tries = 5
+                    failed = False
+
+                except Exception as e:
+                    print(e)
+                    tries += 1
+                if failed:
+                    self.skip_and_log()
 
             try:
                 self.push_imgs_2(book['img_links'])
@@ -334,9 +363,9 @@ class Pusher:
                 print(e)
 
 
-            time.sleep(2)
+            time.sleep(sleep_b)
             self.save()
-            time.sleep(4)
+            time.sleep(sleep_a)
 
             tries = 0
 
@@ -359,9 +388,9 @@ class Pusher:
             # if complete == False:
             #     continue
 
-            time.sleep(4)
+            time.sleep(sleep_a)
             self.product_list_screen()
-            time.sleep(4)
+            time.sleep(sleep_a)
             print(f'failed books:\n{failed_books}')
 
 
@@ -394,13 +423,13 @@ class Interface:
 
         pusher.push_price(book['price'])
 
-        time.sleep(2)
+        time.sleep(sleep_b)
         pusher.save()
-        time.sleep(4)
+        time.sleep(sleep_a)
         pusher.product_list_screen()
-        time.sleep(4)
+        time.sleep(sleep_a)
         pusher.new_product()
-        time.sleep(4)
+        time.sleep(sleep_a)
 
     def main_loop(self):
 
