@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.alert import Alert
 from selenium.webdriver import ActionChains
 import pyperclip
 import read_json
@@ -22,7 +23,7 @@ title_locator = 'PolarisTextField1' # id
 description_push_locator = 'product-description' # id name
 img_locator = ''
 price_locator = ''
-failed_books = {}
+failed_books = []
 
 # driver = webdriver.Chrome('./chromedriver')
 # driver_2 = webdriver.Chrome('./chromedriver')
@@ -40,13 +41,28 @@ class Pusher:
 
     def skip_and_log(self):
         print('skipping & logging...')
-        print(self.id)
+        print(f'\nbook logged: {self.id}\n')
+        file = open('failed_books.txt', 'w')
+        failed_books.append(self.id)
+        file.write(str(failed_books))
+        self.driver.refresh()
+        alert = Alert(self.driver)
+        time.sleep(2)
+        alert.accept()
 
     def enter(self, element):
         print('pressing enter...\n')
         element.send_keys(Keys.ENTER)
 
     def push_title(self, title):
+        # catch random alert boxes
+        try:
+            alert = self.driver.switch_to.alert
+            time.sleep(1)
+            alert.dismiss()
+        except:
+            print('no alert box!')
+
         print(f'pushing title:\n{title}\n')
         element = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[1]/div/div/div[1]/div/div[2]/div/div/input')
         element.send_keys(title)
@@ -239,6 +255,7 @@ class Pusher:
                 tries = 5
 
             except:
+                tries += 1
                 print(f'attempted to save x{tries}')
                 outcome = False
 
