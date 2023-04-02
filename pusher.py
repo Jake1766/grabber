@@ -50,8 +50,9 @@ class Pusher:
         file = open('failed_books.txt', 'w')
         failed_books.append(self.id)
         file.write(str(failed_books))
+        print('\nrefreshing page...\n')
         self.driver.refresh()
-        time.sleep(sleep_b)
+        time.sleep(5)
         try:
             alert = Alert(self.driver)
             alert.accept()
@@ -65,12 +66,19 @@ class Pusher:
 
     def push_title(self, title):
         # catch random alert boxes
-        try:
-            alert = self.driver.switch_to.alert
-            time.sleep(sleep_b)
-            alert.accept()
-        except:
-            print('no alert box!')
+        tries = 0
+        outcome = False
+        while tries < 5:
+            try:
+                alert = self.driver.switch_to.alert
+                time.sleep(sleep_b)
+                alert.accept()
+                outcome = True
+            except:
+                print('no alert box!')
+
+        if tries == False:
+            return outcome
 
 
         tries = 0
@@ -80,38 +88,54 @@ class Pusher:
                 element = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[1]/div/div/div[1]/div/div[2]/div/div/input')
                 element.send_keys(title)
                 time.sleep(sleep_a)
-                success = True
+                outcome = True
                 tries = 5
 
             except Exception as e:
                 print(e)
                 tries += 1
-            if success == False:
-                self.skip_and_log()
+        if outcome == False:
+            return outcome
+        else:
+            return True
 
     def push_description(self, desc_url):
-        print(f'íd test:{self.id}')
-        print(f'pushing description from {desc_url}\n')
-        self.driver_2.get(desc_url)
-        desc_html = self.driver_2.find_element(By.TAG_NAME, 'table')
-        desc_html = desc_html.get_attribute('innerHTML')
-        print(type(desc_html))
-        print(f'\nhtml is:\n{desc_html}\n')
+        tries = 0
+        outcome = False
+        while tries < 5:
+            try:
+                print(f'íd test:{self.id}')
+                print(f'pushing description from {desc_url}\n')
+                self.driver_2.get(desc_url)
+                desc_html = self.driver_2.find_element(By.TAG_NAME, 'table')
+                desc_html = desc_html.get_attribute('innerHTML')
+                print(type(desc_html))
+                print(f'\nhtml is:\n{desc_html}\n')
 
-        # need to press button to write html
-        html_button = self.driver.find_element(By.CSS_SELECTOR, "button.edsvs.mQNNA.B1Gi5")
-        html_button.click()
-        time.sleep(sleep_b)
+                # need to press button to write html
+                html_button = self.driver.find_element(By.CSS_SELECTOR, "button.edsvs.mQNNA.B1Gi5")
+                html_button.click()
+                time.sleep(sleep_b)
 
-        # should be able to input raw html now
+                # should be able to input raw html now
 
-        desc_box = self.driver.find_element(By.XPATH, "/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[1]/div/div/div[2]/div/div/div[2]/div[2]/div[2]/div/div/div[2]/div[2]/div")
-        desc_box.click()
-        print('clicked description box...\n')
-        pyperclip.copy(desc_html)
-        desc_box.send_keys(Keys.CONTROL, 'v')
-        print('description added.\n')
+                desc_box = self.driver.find_element(By.XPATH, "/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[1]/div/div/div[2]/div/div/div[2]/div[2]/div[2]/div/div/div[2]/div[2]/div")
+                desc_box.click()
+                print('clicked description box...\n')
+                pyperclip.copy(desc_html)
+                desc_box.send_keys(Keys.CONTROL, 'v')
+                print('description added.\n')
+                outcome = True
 
+            except:
+                print(f'failed to push description x{tries}')
+
+        if outcome == False:
+            return outcome
+        else:
+            return True
+
+    #redundant
     def push_imgs(self, array):
         print(f'urls:\n{array}')
         for url in array:
@@ -134,7 +158,8 @@ class Pusher:
                     tries += 1
 
             if outcome == False:
-                self.skip_and_log()
+                return outcome
+
 
             tries = 0
             while tries < 5:
@@ -153,7 +178,7 @@ class Pusher:
                     tries += 1
 
             if outcome == False:
-                self.skip_and_log()
+                return outcome
 
             tries = 0
             while tries < 5:
@@ -168,7 +193,7 @@ class Pusher:
                     outcome = False
 
             if outcome == False:
-                self.skip_and_log()
+                return outcome
 
             tries = 0
             while tries < 5:
@@ -186,7 +211,7 @@ class Pusher:
                     outcome = False
 
             if outcome == False:
-                self.skip_and_log()
+                return outcome
 
 
 
@@ -226,7 +251,10 @@ class Pusher:
                     outcome = False
 
             if outcome == False:
-                self.skip_and_log()
+                return outcome
+            else:
+                return True
+
 
     def push_price(self, price):
         print('pushing price...\n')
@@ -245,7 +273,7 @@ class Pusher:
                 outcome = False
 
         if outcome == False:
-            self.skip_and_log()
+            return outcome
 
         tries = 0
         while tries < 5:
@@ -262,7 +290,9 @@ class Pusher:
                 outcome = False
 
         if outcome == False:
-            self.skip_and_log()
+            return outcome
+        else:
+            return True
 
     def save(self):
         print('saving product...')
@@ -281,14 +311,25 @@ class Pusher:
                 outcome = False
 
         if outcome == False:
-            self.skip_and_log()
+            return outcome
 
     def product_list_screen(self):
-        print('navigating to product list screen\n')
-        self.driver.get(url)
-        # nav_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[1]/div/nav/a')
-        # nav_button.click()
-        print('\nsuccess!\n')
+        tries = 0
+        outcome = False
+        while tries < 5:
+            try:
+                print('navigating to product list screen\n')
+                self.driver.get(url)
+                # nav_button = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[1]/div/div/div[1]/div/nav/a')
+                # nav_button.click()
+                print('\nsuccess!\n')
+                tries = 5
+                outcome = True
+            except:
+                print(f'failed to navigate to product screen x{tries}')
+                tries += 1
+
+        return outcome
 
 
 
@@ -311,7 +352,7 @@ class Pusher:
                 outcome = False
 
         if outcome == False:
-            self.skip_and_log()
+            return outcome
 
 
     def main(self):
@@ -321,51 +362,29 @@ class Pusher:
         dict = self.dict
         count = 1
         for item in dict:
-            time.sleep(sleep_a)
-            print(f'\ntitle {count}\n')
-            book = dict[item]
-            count += 1
+            outcome = True
+            while outcome:
+                time.sleep(sleep_a)
+                print(f'\ntitle {count}\n')
 
-            self.id = item
+                book = dict[item]
+                count += 1
 
-            print(f'id is: {item}')
+                self.id = item
 
-            try:
-                self.push_title(book['title'])
+                print(f'id is: {item}')
 
-            except Exception as e:
-                print(e)
+                outcome = self.push_title(book['title'])
+                outcome = self.push_description(book['description'])
+                outcome = self.push_imgs_2(book['img_links'])
+                outcome = self.push_price(book['price'])
+                time.sleep(sleep_b)
+                outcome = self.save()
+                time.sleep(sleep_a)
 
-
-            tries = 0
-            while tries < 5:
-                try:
-                    self.push_description(book['description'])
-                    tries = 5
-                    failed = False
-
-                except Exception as e:
-                    print(e)
-                    tries += 1
-                if failed:
-                    self.skip_and_log()
-
-            try:
-                self.push_imgs_2(book['img_links'])
-
-            except Exception as e:
-                print(e)
-
-            try:
-                self.push_price(book['price'])
-
-            except Exception as e:
-                print(e)
-
-
-            time.sleep(sleep_b)
-            self.save()
-            time.sleep(sleep_a)
+            if outcome == False:
+                self.skip_and_log()
+                continue
 
             tries = 0
 
