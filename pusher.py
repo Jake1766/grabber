@@ -51,8 +51,7 @@ class Pusher:
         failed_books.append(self.id)
         file.write(str(failed_books))
         print('\nrefreshing page...\n')
-        self.driver.refresh()
-        time.sleep(5)
+
         try:
             alert = Alert(self.driver)
             alert.accept()
@@ -87,8 +86,10 @@ class Pusher:
                 tries = 5
 
             except Exception as e:
+                time.sleep(5)
                 print(e)
                 tries += 1
+
         if outcome == False:
             return outcome
         else:
@@ -254,7 +255,7 @@ class Pusher:
             try:
                 price_box = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[3]/div[2]/div/div/div/div/div/div/div[1]/div[2]/div')
                 price_box.click()
-                print('\nsuccess!')
+                print('\nsuccess! clicked price box...')
                 outcome = True
                 tries = 5
 
@@ -271,7 +272,7 @@ class Pusher:
             try:
                 price_box = self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[3]/div[2]/div/div/div/div/div/div/div[1]/div[2]/div/div/input')
                 price_box.send_keys(price)
-                print('\nsuccess!\n')
+                print('\nsuccess! sent price...\n')
                 outcome = True
                 tries = 5
 
@@ -292,9 +293,10 @@ class Pusher:
             try:
                 save_button = self.driver.find_element(By.CSS_SELECTOR, 'button.Polaris-Button_r99lw.Polaris-Button--primary_7k9zs')
                 save_button.click()
-                print('\nsuccess!\n')
+                print('\nsuccess! product saved...\n')
                 outcome = True
                 tries = 5
+                return outcome
 
             except:
                 tries += 1
@@ -354,54 +356,38 @@ class Pusher:
         count = 1
         for item in dict:
             outcome = True
-            while outcome:
-                time.sleep(sleep_a)
-                print(f'\ntitle {count}\n')
+            time.sleep(sleep_a)
+            print(f'\ntitle {count}\n')
 
-                book = dict[item]
-                count += 1
+            book = dict[item]
+            count += 1
 
-                self.id = item
+            self.id = item
 
-                print(f'id is: {item}')
+            print(f'id is: {item}')
 
+            if outcome:
                 outcome = self.push_title(book['title'])
+            if outcome:
                 outcome = self.push_description(book['description'])
+            if outcome:
                 outcome = self.push_imgs_2(book['img_links'])
+            if outcome:
                 outcome = self.push_price(book['price'])
-                time.sleep(sleep_b)
-                outcome = self.save()
-                time.sleep(sleep_a)
 
+            time.sleep(sleep_b)
+            if outcome:
+                outcome = self.save()
+
+            time.sleep(sleep_a)
+            if outcome:
+                outcome = self.product_list_screen()
+            print(f'failed books:\n{failed_books}')
             if outcome == False:
                 self.skip_and_log()
+                self.driver.refresh()
+                time.sleep(5)
                 continue
-
-            tries = 0
-
-            # while tries < 5:
-            #     tries = 0
-            #     complete = False
-            #     try:
-            #         self.product_list_screen()
-            #         tries += 1
-            #         complete = True
-            #     except Exception as e:
-            #         print('failed')
-            #         print(e)
-            #         tries += 1
-            #
-            # failed_books[item].append(book)
-            # file = open("failed_books.py")
-            # file.write(failed_books)
-            # file.close()
-            # if complete == False:
-            #     continue
-
-            time.sleep(sleep_a)
-            self.product_list_screen()
-            time.sleep(sleep_a)
-            print(f'failed books:\n{failed_books}')
 
 
 # going to build an interface for testing individual functions
