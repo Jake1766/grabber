@@ -68,17 +68,12 @@ class Pusher:
         # catch random alert boxes
         tries = 0
         outcome = False
-        while tries < 5:
-            try:
-                alert = self.driver.switch_to.alert
-                time.sleep(sleep_b)
-                alert.accept()
-                outcome = True
-            except:
-                print('no alert box!')
-
-        if tries == False:
-            return outcome
+        try:
+            alert = self.driver.switch_to.alert
+            time.sleep(sleep_b)
+            alert.accept()
+        except:
+            print('\nNo alert box! :)))\n')
 
 
         tries = 0
@@ -109,8 +104,6 @@ class Pusher:
                 self.driver_2.get(desc_url)
                 desc_html = self.driver_2.find_element(By.TAG_NAME, 'table')
                 desc_html = desc_html.get_attribute('innerHTML')
-                print(type(desc_html))
-                print(f'\nhtml is:\n{desc_html}\n')
 
                 # need to press button to write html
                 html_button = self.driver.find_element(By.CSS_SELECTOR, "button.edsvs.mQNNA.B1Gi5")
@@ -126,9 +119,11 @@ class Pusher:
                 desc_box.send_keys(Keys.CONTROL, 'v')
                 print('description added.\n')
                 outcome = True
+                tries = 5
 
             except:
                 print(f'failed to push description x{tries}')
+                tries += 1
 
         if outcome == False:
             return outcome
@@ -214,9 +209,6 @@ class Pusher:
                 return outcome
 
 
-
-
-
     def push_imgs_2(self, urls):
         for link in urls:
             img_data = requests.get(link).content
@@ -252,8 +244,7 @@ class Pusher:
 
             if outcome == False:
                 return outcome
-            else:
-                return True
+        return True
 
 
     def push_price(self, price):
