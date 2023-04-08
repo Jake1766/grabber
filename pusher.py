@@ -33,6 +33,10 @@ sleep_b = 0.5
 # driver = webdriver.Chrome('./chromedriver')
 # driver_2 = webdriver.Chrome('./chromedriver')
 
+# errors
+# 174686231699 - url f?
+# 175624811345 - img fail
+
 
 class Pusher:
     def __init__(self, dict):
@@ -57,6 +61,7 @@ class Pusher:
             alert.accept()
         except:
             print('alert dismiss failed, no alert?')
+
 
 
     def enter(self, element):
@@ -211,12 +216,23 @@ class Pusher:
 
 
     def push_imgs_2(self, urls):
+        count = 0
         for link in urls:
-            img_data = requests.get(link).content
-            file_path = fr'C:\Users\jaker\Desktop\Migration\temp_images\temp_image_{urls.index(link)}.jpg'
+            print(f'\nimage: {link}\n')
 
-            with open(file_path, 'wb') as handler:
-                handler.write(img_data)
+            # check images are present
+            if link == 'f':
+                print('images failed')
+                outcome = False
+                return outcome
+            # second image check
+            if len(link) != 1:
+                img_data = requests.get(link).content
+                file_path = fr'C:\Users\jaker\Desktop\Migration\temp_images\temp_image_{urls.index(link)}.jpg'
+                with open(file_path, 'wb') as handler:
+                    handler.write(img_data)
+            else:
+                return False
 
         for filename in os.listdir('temp_images'):
             file_path = fr'C:\Users\jaker\Desktop\Migration\temp_images/{filename}'
@@ -229,24 +245,46 @@ class Pusher:
                     print('attempting to click \'add img\' button...')
 
                     self.driver.find_element(By.XPATH, '/html/body/div/div[1]/div/main/div/div/div[2]/form/div/div[1]/div[2]/div/div/div[3]/div/div/div[2]/span/input').send_keys(file_path)
-
-                    time.sleep(sleep_a)
                     print('\nsuccess??\n')
-                    os.remove(file_path)
                     outcome = True
                     tries = 5
 
                 except Exception as e:
-                    print(f'failed to add image x{tries}')
+                    print(f'failed to add image x{tries} filepath: {file_path}')
                     print(f'\n{e}\n')
                     print(f'{traceback.format_exc}\n')
                     tries += 1
                     outcome = False
+                    if outcome == False:
+                        return outcome
+            # pause to allow images to upload before deleting
+        time.sleep(8)
 
-            if outcome == False:
-                return outcome
+        for filename in os.listdir('temp_images'):
+            file_path = fr'C:\Users\jaker\Desktop\Migration\temp_images/{filename}'
+            delete_tries = 0
+            while delete_tries < 5:
+                try:
+                    os.remove(file_path)
+                    outcome = True
+                    delete_tries = 5
+
+
+                except Exception as e:
+                    delete_tries += 1
+                    print(f'failed to delete image at {file_path} x{delete_tries}')
+                    print(e)
+        if outcome == False:
+            return False
+
+
+
+
+
+
+
+
         return True
-
 
     def push_price(self, price):
         print('pushing price...\n')
@@ -384,7 +422,7 @@ class Pusher:
                 outcome = self.product_list_screen()
             print(f'failed books:\n{failed_books}')
             if outcome == False:
-                self.skip_and_log()
+                status = self.skip_and_log()
                 self.driver.refresh()
                 time.sleep(5)
                 continue
@@ -415,8 +453,9 @@ class Interface:
 
         pusher.push_description(book['description'])
 
-        pusher.push_imgs_2(book['img_links'])
-
+        skip_status = pusher.push_imgs_2(book['img_links'])
+        if skip_status == 'skip':
+            pusher.skip_and_log()
         pusher.push_price(book['price'])
 
         time.sleep(sleep_b)
